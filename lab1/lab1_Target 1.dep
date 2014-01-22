@@ -1,0 +1,4 @@
+Dependencies for Project 'lab1', Target 'Target 1': (DO NOT MODIFY !)
+F (.\startup_stm32f4xx.s)(0x52E03C8F)(--cpu Cortex-M4.fp -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\ST\STM32F4xx --list ".\list\startup_stm32f4xx.lst" --xref -o ".\obj\startup_stm32f4xx.o" --depend ".\obj\startup_stm32f4xx.d")
+F (.\ceilSqrt.s)(0x52E03938)(--cpu Cortex-M4.fp -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\ST\STM32F4xx --list ".\list\ceilSqrt.lst" --xref -o ".\obj\ceilSqrt.o" --depend ".\obj\ceilSqrt.d")
+F (.\enableFPU.s)(0x52E03CDF)(--cpu Cortex-M4.fp -g --apcs=interwork -I C:\Keil\ARM\RV31\INC -I C:\Keil\ARM\CMSIS\Include -I C:\Keil\ARM\Inc\ST\STM32F4xx --list ".\list\enableFPU.lst" --xref -o ".\obj\enableFPU.o" --depend ".\obj\enableFPU.d")
