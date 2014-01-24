@@ -10,20 +10,21 @@ int checkSquare(int n){
     else return 0;
 }
 
-void computeFactors(int N){
-	int number, f1, f2;
+void computeFactors(int N, int *f1, int *f2){
+	int *f1, *f2;
 	int x,y,xx,yy;
 
 	if (N<=0)
 	{
-		f1=0;
-		f2=0;
+		*f1=0;
+		*f2=0;
 		return;
-	}
-	else if (N%2==0){
-		f1=2;
-		f2=N/2;
+	
+	}else if (N%2==0){
+		*f1=2;
+		*f2=N/2;
 		return;
+		
 	}else{
 		x=ceil(math.sqrt(N));
 		yy = x*x - N;
@@ -33,9 +34,9 @@ void computeFactors(int N){
 		}
 	}
 	y=math.sqrt(yy);
-	f1=x+y;
-	f2=x-y;
-	return;
+	*f1=x+y;
+	*f2=x-y;
+	
 
 }
 
