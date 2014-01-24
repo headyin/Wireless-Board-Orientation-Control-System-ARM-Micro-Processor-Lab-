@@ -171,17 +171,18 @@ Reset_Handler    PROC
                  EXPORT  Reset_Handler             [WEAK]
 
 		IMPORT EnableFPU
-        IMPORT CeilSqrt
+		IMPORT Fermat
 		
-				
+				 ;enable FPU
 				 LDR R0, =EnableFPU
 				 BLX R0
 				 
-				 MOV	R1, #151
+				 ;call fermat function
+				 MOV 	R1, #16
 				 PUSH	{R1}
-				 LDR    R0, =CeilSqrt
-                 BLX    R0
-				 POP	{R1}
+				 LDR	R0, =Fermat
+				 BLX	R0
+				 POP	{R0,R1}
 				 
 				 NOP
                  ENDP
