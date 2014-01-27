@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <iostream.h>
 #include <math.h>
-using namespace std;
+#include <time.h>
 
 int checkSquare(int n){
     int temp;
@@ -11,8 +10,7 @@ int checkSquare(int n){
 }
 
 void computeFactors(int N, int *f1, int *f2){
-	int *f1, *f2;
-	int x,y,xx,yy;
+	int x,y,yy;
 
 	if (N<=0)
 	{
@@ -26,17 +24,47 @@ void computeFactors(int N, int *f1, int *f2){
 		return;
 		
 	}else{
-		x=ceil(math.sqrt(N));
+		x=ceil(sqrt(N));
 		yy = x*x - N;
 		while (checkSquare(yy)==0)  {		
-			x=x+1;
+			x+=1;
 			yy=x*x-N;
 		}
 	}
-	y=math.sqrt(yy);
+	y=sqrt(yy);
 	*f1=x+y;
 	*f2=x-y;
 	
 
+}int main(){
+    int cF1, cF2; 
+//int aF1, aF2;
+  int n = 129;
+  
+    clock_t start_c = clock();
+   
+ //compute factors
+
+	computeFactors(n,&cF1,&cF2);
+    clock_t end_c = clock();
+	double elapsed_time_c = (end_c-start_c)/(double)CLOCKS_PER_SEC ;
+
+    printf("Compute Factors from c: F1= %i and F2= %i \n", cF1, cF2);
+		printf("Execution time from c = %f \n", elapsed_time_c);
+    
+
+	//clock_t start_a = clock();
+   
+ //compute factors
+
+	//at = computeFactors(n);
+ //   clock_t end_a = clock();
+	//double elasped_time_assembly = (end_a-start_a)/(double)CLOCKS_PER_SEC ;
+
+    //printf("Compute Factors from assembly = %lu \n", at);
+
+    //printf("Execution time from a = %f \n", elapsed_time_a);
+ 
+    return 0;
 }
 

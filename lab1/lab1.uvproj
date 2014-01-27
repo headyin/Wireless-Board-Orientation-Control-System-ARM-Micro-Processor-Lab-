@@ -414,9 +414,9 @@
               <FilePath>.\enableFPU.s</FilePath>
             </File>
             <File>
-              <FileName>fermat.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\fermat.s</FilePath>
+              <FileName>computeFactors.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\computeFactors.c</FilePath>
             </File>
           </Files>
         </Group>
