@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <stdint.h>
+// Prototype of assembly function:
+#include <stm32f4xx.h>
+extern uint64_t Fermat(uint32_t N);
+// N is passed in R0, and the return value will be read from R0--R1.
 
 int checkSquare(int n){
     int temp;
-	temp = sqrt(n);
+		temp = sqrt(n);
     if(temp*temp == n) return 1;
     else return 0;
 }
@@ -27,7 +32,7 @@ void computeFactors(int N, int *f1, int *f2){
 		x=ceil(sqrt(N));
 		yy = x*x - N;
 		while (checkSquare(yy)==0)  {		
-			x+=1;
+			x=x+1;
 			yy=x*x-N;
 		}
 	}
@@ -36,35 +41,21 @@ void computeFactors(int N, int *f1, int *f2){
 	*f2=x-y;
 	
 
-}int main(){
+}
+int main(){
     int cF1, cF2; 
-//int aF1, aF2;
-  int n = 129;
-  
-    clock_t start_c = clock();
-   
+	uint64_t a;
+	uint32_t least, most;
+  uint32_t n = 12345; 
  //compute factors
 
-	computeFactors(n,&cF1,&cF2);
-    clock_t end_c = clock();
-	double elapsed_time_c = (end_c-start_c)/(double)CLOCKS_PER_SEC ;
-
+		computeFactors(n,&cF1,&cF2);
     printf("Compute Factors from c: F1= %i and F2= %i \n", cF1, cF2);
-		printf("Execution time from c = %f \n", elapsed_time_c);
-    
+	a = Fermat(n);
+	least = a;
+most = (a & 0xFFFFFFFF) >> 32;
 
-	//clock_t start_a = clock();
-   
- //compute factors
-
-	//at = computeFactors(n);
- //   clock_t end_a = clock();
-	//double elasped_time_assembly = (end_a-start_a)/(double)CLOCKS_PER_SEC ;
-
-    //printf("Compute Factors from assembly = %lu \n", at);
-
-    //printf("Execution time from a = %f \n", elapsed_time_a);
- 
+   printf("Compute Factors from assembly: F1= %i and F2= %i \n", least, most );
     return 0;
 }
 

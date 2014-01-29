@@ -1,5 +1,16 @@
 Dependencies for Project 'lab1', Target 'Target 1': (DO NOT MODIFY !)
-F (.\startup_stm32f4xx.s)(0x52E95C15)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\startup_stm32f4xx.lst --xref -o .\obj\startup_stm32f4xx.o --depend .\obj\startup_stm32f4xx.d)
-F (.\ceilSqrt.s)(0x52E9595E)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\ceilsqrt.lst --xref -o .\obj\ceilsqrt.o --depend .\obj\ceilsqrt.d)
-F (.\enableFPU.s)(0x52E2C1AD)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\enablefpu.lst --xref -o .\obj\enablefpu.o --depend .\obj\enablefpu.d)
-F (.\fermat.s)(0x52E95D7F)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\fermat.lst --xref -o .\obj\fermat.o --depend .\obj\fermat.d)
+F (.\ceilSqrt.s)(0x52E977C4)()
+F (.\enableFPU.s)(0x52E977C4)()
+F (.\fermat.s)(0x52E977C4)()
+F (.\startup_stm32f4xx.s)(0x52E977C4)()
+F (.\computeFactors.c)(0x52E976BC)()
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C86004)
+I (C:\Keil\ARM\ARMCC\include\math.h)(0x51C86004)
+I (C:\Keil\ARM\ARMCC\include\time.h)(0x51C86004)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C86004)
+I (C:\Keil\ARM\Inc\ST\STM32F4xx\stm32f4xx.h)(0x520A5034)
+F (.\prime.c)(0x52E9750B)()
+I (C:\Keil\ARM\ARMCC\include\stdio.h)(0x51C86004)
+I (C:\Keil\ARM\ARMCC\include\math.h)(0x51C86004)
+I (C:\Keil\ARM\ARMCC\include\stdint.h)(0x51C86004)
+I (C:\Keil\ARM\Inc\ST\STM32F4xx\stm32f4xx.h)(0x520A5034)

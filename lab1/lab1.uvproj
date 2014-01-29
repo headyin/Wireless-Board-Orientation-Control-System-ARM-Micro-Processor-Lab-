@@ -399,11 +399,6 @@
           <GroupName>Source Group 1</GroupName>
           <Files>
             <File>
-              <FileName>startup_stm32f4xx.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\startup_stm32f4xx.s</FilePath>
-            </File>
-            <File>
               <FileName>ceilSqrt.s</FileName>
               <FileType>2</FileType>
               <FilePath>.\ceilSqrt.s</FilePath>
@@ -414,9 +409,24 @@
               <FilePath>.\enableFPU.s</FilePath>
             </File>
             <File>
+              <FileName>fermat.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\fermat.s</FilePath>
+            </File>
+            <File>
+              <FileName>startup_stm32f4xx.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\startup_stm32f4xx.s</FilePath>
+            </File>
+            <File>
               <FileName>computeFactors.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\computeFactors.c</FilePath>
+            </File>
+            <File>
+              <FileName>prime.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\prime.c</FilePath>
             </File>
           </Files>
         </Group>
