@@ -4,7 +4,6 @@
 	EXPORT Fermat
 	IMPORT CeilSqrt
 Fermat
-	POP		{R0}	;get parameter N
 	PUSH 	{LR}	;put the origin link register value to stack
 	;if N < 1
 	CMP		R0, #1
@@ -14,38 +13,35 @@ Fermat
 	BEQ		Even_Condition
 	
 Odd_Condition
-	MOV		R3, R0	;save N to R3, since R0 will be modified in ceilSqrt
+	MOV		R4, R0	;save N to R3, since R0 will be modified in ceilSqrt
 	;call ceilSqrt function R1 = ceilSqrt(R0)
-	PUSH	{R0}	;put paratemter to stack
-	LDR		R0, =CeilSqrt
-    BLX		R0
-	POP		{R1}
-	;y^2 = X^2 - N
-	MUL		R2, R1, R1
-	SUB		R2, R2, R3
+    BL		CeilSqrt
+	MOV		R5, R0	;save X to R5
+	;y^2 = X^2 - N save Y^2 to R6
+	MUL		R6, R5, R5
+	SUB		R6, R6, R4 
 	
 Check_YY_is_square
-	;check if (R2 - ceilSqrt(R2)^2 == 0)
-	PUSH	{R2}
-	LDR		R0, =CeilSqrt
-    BLX		R0
-	POP		{R4}
-	MUL		R5, R4, R4
-	CMP		R5, R2
+	;check if (R6 - ceilSqrt(R6)^2 == 0)
+	MOV		R0, R6
+    BL		CeilSqrt
+	MUL		R1, R0, R0
+	CMP		R6, R1
 	BEQ		YY_is_squire
 	
 YY_is_not_square
 	;Y^2 += (2X + 1)
-	LSL		R4, R1, #1
-	ADD		R4, R4, #1
-	ADD		R2, R2, R4
+	LSL		R0, R5, #1
+	ADD		R0, R0, #1
+	ADD		R6, R6, R0
 	;X +=1
-	ADD		R1, R1, #1
+	ADD		R5, R5, #1
 	B		Check_YY_is_square
 
 YY_is_squire
-	ADD		R0, R1, R4	;R0 = x + y
-	SUB		R1,	R1, R4	;R1 = x - y
+	MOV		R6,	R0		;now y is stored in R6
+	ADD		R0, R5, R6	;R0 = x + y
+	SUB		R1,	R5, R6	;R1 = x - y
 	B		Fermat_return
 	
 Even_Condition
@@ -62,6 +58,5 @@ Negative_Zero_Condition
 	
 Fermat_return
 	POP		{LR}
-	PUSH	{R0,R1}
-	BX LR ;
+	BX 		LR
 	END

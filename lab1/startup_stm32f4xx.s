@@ -174,15 +174,11 @@ Reset_Handler    PROC
 		IMPORT Fermat
 		
 				 ;enable FPU
-				 LDR R0, =EnableFPU
-				 BLX R0
+				 BL		EnableFPU
 				 
 				 ;call fermat function
-				 MOV 	R1, #16
-				 PUSH	{R1}
-				 LDR	R0, =Fermat
-				 BLX	R0
-				 POP	{R0,R1}
+				 MOV 	R0, #13
+				 BL		Fermat
 				 
 				 NOP
                  ENDP
