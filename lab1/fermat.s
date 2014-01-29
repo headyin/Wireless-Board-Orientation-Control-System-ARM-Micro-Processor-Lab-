@@ -1,6 +1,7 @@
 	AREA fermat_proc, CODE, READONLY
 	;implement the fermat function
 	;get N from stack, return R0, R1 to stack
+	;uint64_t Fermat(uint32_t n);
 	EXPORT Fermat
 	IMPORT CeilSqrt
 Fermat

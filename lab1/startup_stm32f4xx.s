@@ -172,13 +172,17 @@ Reset_Handler    PROC
 
 		IMPORT EnableFPU
 		IMPORT Fermat
+		IMPORT getPrimeFactors
+
 		
 				 ;enable FPU
 				 BL		EnableFPU
 				 
 				 ;call fermat function
-				 MOV 	R0, #13
-				 BL		Fermat
+				 ;MOV 	R0, #13
+				 ;BL		Fermat
+				 
+				 BL		getPrimeFactors
 				 
 				 NOP
                  ENDP
