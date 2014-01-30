@@ -172,7 +172,9 @@ Reset_Handler    PROC
 
 		IMPORT EnableFPU
 		IMPORT Fermat
-		IMPORT getPrimeFactors
+		;IMPORT getPrimeFactors
+		IMPORT computeFactorsMain
+		;IMPORT gcdlcmMain
 
 		
 				 ;enable FPU
@@ -182,7 +184,9 @@ Reset_Handler    PROC
 				 ;MOV 	R0, #13
 				 ;BL		Fermat
 				 
-				 BL		getPrimeFactors
+				 ;BL		getPrimeFactors
+				 BL		computeFactorsMain
+				 ;BL			gcdlcmMain
 				 
 				 NOP
                  ENDP
