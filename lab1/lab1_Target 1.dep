@@ -1,9 +1,28 @@
-F (.\ceilSqrt.s)(0x52E9595E)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\ceilsqrt.lst --xref -o .\obj\ceilsqrt.o --depend .\obj\ceilsqrt.d)
-F (.\enableFPU.s)(0x52E2C1AD)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\enablefpu.lst --xref -o .\obj\enablefpu.o --depend .\obj\enablefpu.d)
-F (.\fermat.s)(0x52E96572)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\fermat.lst --xref -o .\obj\fermat.o --depend .\obj\fermat.d)
-F (.\isPrime.c)(0x52E97749)(-c --cpu Cortex-M4.fp -D__EVAL -g -O0 --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"-o .\obj\isprime.o --omf_browse .\obj\isprime.crf --depend .\obj\isprime.d)
+Dependencies for Project 'lab1', Target 'Target 1': (DO NOT MODIFY !)
+F (.\ceilSqrt.s)(0x52EADA62)()
+F (.\enableFPU.s)(0x52E2C1AD)()
+F (.\fermat.s)(0x52EACE8C)()
+F (.\startup_stm32f4xx.s)(0x52EAD97E)()
+F (.\computeFactors.c)(0x52EAC500)()
 I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdio.h)(0x51C86004)
-I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdlib.h)(0x51C86004)
+I (C:\Program Files (x86)\keil\ARM\ARMCC\include\math.h)(0x51C86004)
 I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdint.h)(0x51C86004)
-F (.\roundSqrt.s)(0x52E969BA)(--cpu Cortex-M4.fp --pd "__EVAL SETA 1" -g --apcs=interwork -I "C:\Program Files (x86)\keil\ARM\RV31\INC"-I "C:\Program Files (x86)\keil\ARM\CMSIS\Include"-I "C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx"--list .\list\roundsqrt.lst --xref -o .\obj\roundsqrt.o --depend .\obj\roundsqrt.d)
->>>>>>> 008ca040f1d92f30db7dc88314a1b6a62b567e65
+I (C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx\stm32f4xx.h)(0x520A5034)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cm4.h)(0x520A4FF2)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cmInstr.h)(0x520A4FF0)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cmFunc.h)(0x520A4FF2)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cm4_simd.h)(0x520A4FF0)
+I (C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx\system_stm32f4xx.h)(0x520A5034)
+F (.\computePrimeFactors.c)(0x52EAD98D)()
+I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdint.h)(0x51C86004)
+F (.\gcdlcm.c)(0x52EAD9E1)()
+I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdio.h)(0x51C86004)
+I (C:\Program Files (x86)\keil\ARM\ARMCC\include\math.h)(0x51C86004)
+I (C:\Program Files (x86)\keil\ARM\ARMCC\include\stdint.h)(0x51C86004)
+I (C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx\stm32f4xx.h)(0x520A5034)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cm4.h)(0x520A4FF2)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cmInstr.h)(0x520A4FF0)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cmFunc.h)(0x520A4FF2)
+I (C:\Program Files (x86)\keil\ARM\CMSIS\Include\core_cm4_simd.h)(0x520A4FF0)
+I (C:\Program Files (x86)\keil\ARM\Inc\ST\STM32F4xx\system_stm32f4xx.h)(0x520A5034)
+F (.\roundSqrt.s)(0x52EABB48)()
