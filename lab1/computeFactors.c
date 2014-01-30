@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
 #include <stdint.h>
 
 // Prototype of assembly function:
 #include <stm32f4xx.h>
-extern uint64_t Fermat(uint32_t N);
+extern uint64_t fermat(uint32_t N);
 // N is passed in R0, and the return value will be read from R0--R1.
 
 
@@ -62,14 +61,14 @@ int computeFactorsMain(){
 	uint64_t a;
 	uint32_t least;
 	uint32_t most;
-	uint32_t n = 12345; 
+	uint32_t n = 0x7FFFFF; 
 
 	//Compute factors from c and assembly code
 	computeFactors(n,&cF1,&cF2);
 	printf("Compute Factors from c: F1= %i and F2= %i \n", cF1, cF2);
 
 
-	a = Fermat(n);
+	a = fermat(n);
 	//
 	least = a;
 	most = a >> 32;

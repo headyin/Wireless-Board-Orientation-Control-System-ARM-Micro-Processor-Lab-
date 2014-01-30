@@ -2,10 +2,11 @@
 	;implement the fermat function
 	;get N from stack, return R0, R1 to stack
 	;uint64_t Fermat(uint32_t n);
-	EXPORT Fermat
-	IMPORT CeilSqrt
-Fermat
-	PUSH 	{LR}	;put the origin link register value to stack
+	EXPORT fermat
+	IMPORT ceilSqrt
+	IMPORT roundSqrt
+fermat
+	PUSH 	{R4-R12, LR}	;put the origin link register value to stack
 	;if N < 1
 	CMP		R0, #1
 	BMI		Negative_Zero_Condition
@@ -16,7 +17,7 @@ Fermat
 Odd_Condition
 	MOV		R4, R0	;save N to R3, since R0 will be modified in ceilSqrt
 	;call ceilSqrt function R1 = ceilSqrt(R0)
-    BL		CeilSqrt
+    BL		ceilSqrt
 	MOV		R5, R0	;save X to R5
 	;y^2 = X^2 - N save Y^2 to R6
 	MUL		R6, R5, R5
@@ -25,7 +26,7 @@ Odd_Condition
 Check_YY_is_square
 	;check if (R6 - ceilSqrt(R6)^2 == 0)
 	MOV		R0, R6
-    BL		CeilSqrt
+    BL		roundSqrt
 	MUL		R1, R0, R0
 	CMP		R6, R1
 	BEQ		YY_is_squire
@@ -58,6 +59,6 @@ Negative_Zero_Condition
 	B		Fermat_return
 	
 Fermat_return
-	POP		{LR}
+	POP		{R4-R12, LR}
 	BX 		LR
 	END

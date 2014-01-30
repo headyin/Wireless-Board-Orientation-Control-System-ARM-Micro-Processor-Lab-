@@ -171,22 +171,26 @@ Reset_Handler    PROC
                  EXPORT  Reset_Handler             [WEAK]
 
 		IMPORT EnableFPU
-		IMPORT Fermat
-		;IMPORT getPrimeFactors
+		IMPORT fermat
 		IMPORT computeFactorsMain
-		;IMPORT gcdlcmMain
+		IMPORT computePrimeFactorsMain
+		IMPORT gcdlcmMain
 
 		
 				 ;enable FPU
 				 BL		EnableFPU
 				 
-				 ;call fermat function
-				 ;MOV 	R0, #13
-				 ;BL		Fermat
+				 ;=====================Part 1===============
+				 ;;call fermat function
+;				 MOV 	R0, #0
+;				 BL		fermat
+				 ;;call c function
+;				 BL		computeFactorsMain
 				 
-				 ;BL		getPrimeFactors
-				 BL		computeFactorsMain
-				 ;BL			gcdlcmMain
+				 
+				 ;=====================part 2================
+				 BL		computePrimeFactorsMain
+				 BL		gcdlcmMain
 				 
 				 NOP
                  ENDP
