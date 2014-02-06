@@ -3,8 +3,12 @@ obj/
 
 # List files
 list/
+lst/
 
 # Executables
 *.hex
 
 *.dep
+lab?/*.uvgui*
+lab?/*.uvopt*
+lab?/*.uvproj*
