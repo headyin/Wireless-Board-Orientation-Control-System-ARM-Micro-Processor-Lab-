@@ -10,5 +10,10 @@
 	
 /* Exported functions --------------------------------------------------------*/  
 
+#ifndef TEMPERATURE_H
+#define TEMPERAUTRE_H
+
 void temperature_Init(void);
 float temperature_MeasureValue(void);
+
+#endif
