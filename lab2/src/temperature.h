@@ -8,11 +8,11 @@
   *          the system built-in tempeature sensor.         
   */ 
 	
-/* Exported functions --------------------------------------------------------*/  
 
 #ifndef TEMPERATURE_H
 #define TEMPERAUTRE_H
 
+/* Exported functions --------------------------------------------------------*/  
 void temperature_Init(void);
 float temperature_MeasureValue(void);
 

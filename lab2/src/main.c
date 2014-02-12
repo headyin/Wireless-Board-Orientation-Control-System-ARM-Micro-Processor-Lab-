@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <assert.h>
+#include <math.h>
 #include "temperature.h"
+#include "filter.h"
 #include "stm32f4xx.h"
 
 /* temperature sample frequency 25Hz*/
@@ -13,9 +15,12 @@ int main()
 {
 	float temp;
 	uint32_t sysTick_Config_Ret;
+	int16_t sample, moving_average;
 	
 	/* initialize temperature measurement */
 	temperature_Init();
+	/* initialize filter */
+	void filter_init();
 	/* reset system tick flag*/
 	tick_flag = 0;
 	/* Number of ticks between two interrupts */
@@ -23,15 +28,18 @@ int main()
 	/* return value 0 means function succeeded */
 	assert(sysTick_Config_Ret == 0);
 	
+	
 	while(1) {
-
+		
 		/* wait for a system timer interrupt */
 		while(!tick_flag);		
 		/* reset system tick flag*/
 		tick_flag = 0;				
 		/* measure temperature */
 		temp = temperature_MeasureValue();
-		printf("The temperature is %fC.\n", temp);
+		sample = (int16_t) round(temp * 100);
+		moving_average = filter_add(sample);
+		printf("%fC\n", moving_average / 100.00);
 	}
 }
 

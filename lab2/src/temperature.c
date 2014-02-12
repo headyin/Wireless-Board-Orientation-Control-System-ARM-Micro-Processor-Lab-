@@ -21,9 +21,6 @@
 /* the average slope of voltage vs temperature of temperature sensor in mV/C */
 #define AVG_SLOPE 2.5
 
-/* Private variables ---------------------------------------------------------*/
-
-
 /**
   * @brief  Initializes the temperature sensor and its related ADC.
   * @param  None

@@ -1,16 +1,23 @@
-#ifndef FILTER_HEADER
-#define FILTER_HEADER
-extern const uint32_t D;
+/**
+  ******************************************************************************
+  * @file    filter.h
+  * @author  Xinshang Yin, Chandani Patel
+  * @version V1.0.0
+  * @date    06-February-2014
+  * @brief   This file provides functions to get the moving average filter    
+	*          Note: this filter is not thread safe
+  */  
 
-typedef struct{
-	float buffer[D];			//Buffer array to store values
-	float sum;					//The sum of 
-	float average;				//The moving average
-	int index;					//The index to keep track of the new measurement placement
-}MA_Filter;			
+#ifndef FILTER_H
+#define FILTER_H
 
+/* Includes ------------------------------------------------------------------*/
+#include "stdint.h"
 
-void initialize_filter(MA_Filter *Filter_Struct);
-float calculate_average(MA_Filter *filter_struct, float sample);
+/* Exported functions --------------------------------------------------------*/  
+void filter_init(void);
+int16_t filter_add(int16_t sample);
+int16_t filter_average(void);
+int32_t filter_sum(void);
 
 #endif
