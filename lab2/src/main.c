@@ -13,7 +13,7 @@ static volatile uint_fast16_t tick_flag;
 
 
 int main()
-{
+                            {
 	float temp;
 	uint32_t sysTick_Config_Ret;
 	int16_t sample, moving_average;
@@ -31,9 +31,7 @@ int main()
 	/* init alarm */
 	pwm_alarm_init();
 	
-	
 	while(1) {
-		
 		/* wait for a system timer interrupt */
 		while(!tick_flag);		
 		/* reset system tick flag*/
@@ -42,6 +40,7 @@ int main()
 		temp = temperature_MeasureValue();
 		sample = (int16_t) round(temp * 100);
 		moving_average = filter_add(sample);
+		pwm_alarm_update(moving_average / 100);
 		printf("%fC\n", moving_average / 100.00);
 	}
 }

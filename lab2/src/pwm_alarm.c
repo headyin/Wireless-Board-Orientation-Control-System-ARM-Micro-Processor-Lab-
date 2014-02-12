@@ -9,13 +9,20 @@
   */ 
 	
 /* Includes ------------------------------------------------------------------*/
-#include "pwm_alarm.h"
-#include "stdint.h"
 #include "stm32f4xx.h"
+#include "pwm_alarm.h"
+
+/* Private defines -------------------------------------------------------- */
+#define ALARMM_UPPER_BOUND 55
+#define ALARM_LOWER_BOUND 55
+#define MAX_LED_BRIGHTNESS 665
 
 
 /* Private variables ------------------------------------------------------------*/ 
 TIM_OCInitTypeDef  TIM_OCInitStructure;
+TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+uint8_t alarmStatus;
+uint16_t led_brightness;
 
 
 /**
@@ -27,6 +34,8 @@ void pwm_alarm_init(void)
 {
 	alarm_gpio_init();
 	alarm_tim_init();
+	alarmStatus = 0;
+	led_brightness = 0;
 
 }
 
@@ -53,16 +62,14 @@ void alarm_gpio_init(void)
   GPIO_Init(GPIOD, &GPIO_InitStructure); 
 
   /* Connect TIM4 pins to AF2 */  
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource0, GPIO_AF_TIM4);
+  GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
 }
 
 void alarm_tim_init(void)
 {
-	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 100;
-  TIM_TimeBaseStructure.TIM_Prescaler = 0;
+  TIM_TimeBaseStructure.TIM_Period = MAX_LED_BRIGHTNESS;
+  TIM_TimeBaseStructure.TIM_Prescaler = 2;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	
@@ -70,18 +77,39 @@ void alarm_tim_init(void)
 	
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-  TIM_OCInitStructure.TIM_Pulse = 50;
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 
-  TIM_OC1Init(TIM4, &TIM_OCInitStructure);
 
-  TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
-	
+}
+
+void pwm_alarm_update(int16_t temp)
+{
+	/* If alarm is off, but temperature is greater than ALARMM_UPPER_BOUND */
+	/* then the alarm should be on */
+	if ((alarmStatus == 0) && (temp >= ALARMM_UPPER_BOUND))
+	{
+		/* alarm on */
+		alarmStatus = 1;
+	}
+	/* If the alarm is on and temperature is less than ALARM_LOWER_BOUND */
+	/* then the alarm should be off */
+	else if ((alarmStatus == 1) && (temp < ALARM_LOWER_BOUND))
+	{
+		/* alarm off */
+		alarmStatus = 0;
+	}
+	/* start led with alarm on*/
+	if (alarmStatus ==1)
+	{
+		led_brightness = (led_brightness + 10) % MAX_LED_BRIGHTNESS;
+	} else {
+		led_brightness = 0;
+	}
+	TIM_OCInitStructure.TIM_Pulse = led_brightness;
+	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
 	TIM_ARRPreloadConfig(TIM4, ENABLE);
-	
 	/* TIM4 enable counter */
-  TIM_Cmd(TIM4, ENABLE);
-	
-	
+	TIM_Cmd(TIM4, ENABLE);
 }
 
