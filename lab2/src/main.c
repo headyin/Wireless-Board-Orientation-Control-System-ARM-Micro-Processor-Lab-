@@ -3,6 +3,7 @@
 #include <math.h>
 #include "temperature.h"
 #include "filter.h"
+#include "pwm_alarm.h"
 #include "stm32f4xx.h"
 
 /* temperature sample frequency 25Hz*/
@@ -27,6 +28,8 @@ int main()
 	sysTick_Config_Ret = SysTick_Config(SystemCoreClock / TEMPERATURE_SAMPLE_FREQUENCY);
 	/* return value 0 means function succeeded */
 	assert(sysTick_Config_Ret == 0);
+	/* init alarm */
+	pwm_alarm_init();
 	
 	
 	while(1) {
