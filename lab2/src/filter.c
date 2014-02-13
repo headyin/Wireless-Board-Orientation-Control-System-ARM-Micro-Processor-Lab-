@@ -14,7 +14,7 @@
 
 /* Private constants --------------------------------------------------------*/
 /* Filter depth size, range from 1 - 65536 */
-#define FILTER_SIZE 20
+#define FILTER_SIZE 40
 
 /* Private types ------------------------------------------------------------*/
 /**

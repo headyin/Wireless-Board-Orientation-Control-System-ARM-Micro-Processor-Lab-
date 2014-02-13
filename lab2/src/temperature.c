@@ -21,6 +21,12 @@
 /* the average slope of voltage vs temperature of temperature sensor in mV/C */
 #define AVG_SLOPE 2.5
 
+/* Private variables ------------------------------------------------------------*/ 
+/* ADC common init structure */
+ADC_CommonInitTypeDef adc_common_init_s;
+/* ADC init structure */
+ADC_InitTypeDef adc_init_s;
+
 /**
   * @brief  Initializes the temperature sensor and its related ADC.
   * @param  None
@@ -28,11 +34,6 @@
   */
 void temperature_Init(void)
 {
-	/* ADC common init structure */
-	ADC_CommonInitTypeDef adc_common_init_s;
-	/* ADC init structure */
-	ADC_InitTypeDef adc_init_s;
-	
   /* Enable the High Speed APB (APB2) peripheral clock for ADC1 */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 

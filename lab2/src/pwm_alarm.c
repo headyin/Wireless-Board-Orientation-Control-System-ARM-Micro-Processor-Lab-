@@ -21,6 +21,7 @@
 /* Private variables ------------------------------------------------------------*/ 
 TIM_OCInitTypeDef  TIM_OCInitStructure;
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+GPIO_InitTypeDef GPIO_InitStructure;
 uint8_t alarmStatus;
 uint16_t led_brightness;
 
@@ -41,8 +42,6 @@ void pwm_alarm_init(void)
 
 void alarm_gpio_init(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-
   /* TIM4 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
