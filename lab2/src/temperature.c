@@ -49,7 +49,7 @@ void temperature_Init(void)
 
 	/* 12-bit, need 15 ADC clock cycle */
 	adc_init_s.ADC_Resolution = ADC_Resolution_12b;
-	/* Single (one channel) mode disabled */
+	/* Single (one channel) mode */
 	adc_init_s.ADC_ScanConvMode = DISABLE;
 	/* single conversion mode*/
 	adc_init_s.ADC_ContinuousConvMode = DISABLE;

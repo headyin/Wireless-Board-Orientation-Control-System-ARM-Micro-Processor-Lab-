@@ -15,7 +15,7 @@
 /* Private defines -------------------------------------------------------- */
 #define ALARMM_UPPER_BOUND 55
 #define ALARM_LOWER_BOUND 55
-#define MAX_LED_BRIGHTNESS 665
+#define MAX_LED_BRIGHTNESS 2100
 
 
 /* Private variables ------------------------------------------------------------*/ 
@@ -45,7 +45,7 @@ void alarm_gpio_init(void)
   /* TIM4 clock enable */
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
 
-  /* GPIOD clock enable */
+  /* GPIOD clock enable using PCLK1 = 42Mhz */
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
   
   /* GPIOC Configuration: TIM4 CH3 (PD14) */
@@ -66,17 +66,37 @@ void alarm_gpio_init(void)
 
 void alarm_tim_init(void)
 {
+	/* Since our main loop has a frequency of 150Hz, which means the alarm status will be updated in 150Hz               */
+	/* In oder to make PWM have enough peroids running between every two status updates to have effect on the birghtness */
+	/* We want to have at leaset 100 PWM periods between every two status updates. So the output clock frequency is > 150 * 100 = 15KHz */
+	/* Here we choose output clock frequency to be 20KHZ, the counter clock frequency 42MHz, so ARR = 42M / 20K = 2100 */
+	/* And the prescaler is 168M / 2 / 42M  - 1 = 1   */
   /* Time base configuration */
   TIM_TimeBaseStructure.TIM_Period = MAX_LED_BRIGHTNESS;
-  TIM_TimeBaseStructure.TIM_Prescaler = 2;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+  TIM_TimeBaseStructure.TIM_Prescaler = 1;
+	/* The ration between clock frequency and the sampleing frequency, not used */
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	/* upcounting counter mode, counter counts from 0 to ARR and restarts from 0 */
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
 	
+	/* idenpendent PWM mode 1*/
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	/* output compare state enabled, ebable the comparasion between counter and puls value*/
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	/* Output polarity high, when counter < puls value, set the output polarity high*/
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	/* Set CCR3 to 0 at initial, so the alarm is off */
+	TIM_OCInitStructure.TIM_Pulse = 0;
+	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	
+	/* Enable the prereload of CCR3 register, which controls the duty circly of PWM */
+	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
+	/* Enable the prereload of TIM4_ARR register, which defermines the frequency of PWM */
+	TIM_ARRPreloadConfig(TIM4, ENABLE);
+	/* TIM4 enable counter */
+	TIM_Cmd(TIM4, ENABLE);
 
 
 }
@@ -100,15 +120,12 @@ void pwm_alarm_update(int16_t temp)
 	/* start led with alarm on*/
 	if (alarmStatus ==1)
 	{
-		led_brightness = (led_brightness + 10) % MAX_LED_BRIGHTNESS;
+		led_brightness = (led_brightness + 30) % MAX_LED_BRIGHTNESS;
 	} else {
 		led_brightness = 0;
 	}
 	TIM_OCInitStructure.TIM_Pulse = led_brightness;
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
-	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
-	TIM_ARRPreloadConfig(TIM4, ENABLE);
-	/* TIM4 enable counter */
-	TIM_Cmd(TIM4, ENABLE);
+
 }
 

@@ -48,7 +48,7 @@ int main()
 	/* configure sys  tick */
 	/* reset system tick flag*/
 	tick_flag = 0;
-	/* Number of ticks between two interrupts */
+	/* Number of ticks between two interrupts, loop frequency 25 * 6 = 150Hz */
 	sysTick_Config_Ret = SysTick_Config(SystemCoreClock / TEMPERATURE_SAMPLE_FREQUENCY / LOOPS_PER_PERIOD);
 	/* return value 0 means function succeeded */
 	assert(sysTick_Config_Ret == 0);
