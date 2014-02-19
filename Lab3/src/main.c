@@ -5,8 +5,7 @@
 #include "atan_LUT.h"
 
 //NOTE TO STUDENTS: Uncomment the version of drivers related to your sensor
-//#include "lis3dsh.h"
-//#include "stm32f4_discovery_lis302dl.h"
+#include "stm32f4_discovery_lis302dl.h"
 
 int main()
 {

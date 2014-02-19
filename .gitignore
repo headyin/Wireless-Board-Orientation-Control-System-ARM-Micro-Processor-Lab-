@@ -10,5 +10,3 @@ lst/
 
 *.dep
 lab?/*.uvgui*
-lab?/*.uvopt*
-lab?/*.uvproj*
