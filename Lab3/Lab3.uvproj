@@ -443,6 +443,11 @@
               <FileType>5</FileType>
               <FilePath>.\src\array.h</FilePath>
             </File>
+            <File>
+              <FileName>accelerometer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\accelerometer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
