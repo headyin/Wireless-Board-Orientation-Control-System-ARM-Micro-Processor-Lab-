@@ -27,7 +27,7 @@ uint16_t led_brightness;
 
 
 /**
-  * @brief  Initialize GPIOA pin0 as PWG output (TIM5 CH1)
+  * @brief  Initialize GPIOD pin0 as PWG output (TIM4 CH3)
   * @param  None
   * @retval None
   */
@@ -101,6 +101,11 @@ void alarm_tim_init(void)
 
 }
 
+/**
+  * @brief  Update the alarm with the temperature value
+  * @param  int16_t temp, the value of temperatuer
+  * @retval None
+  */
 void pwm_alarm_update(int16_t temp)
 {
 	/* If alarm is off, but temperature is greater than ALARMM_UPPER_BOUND */

@@ -620,21 +620,6 @@
             </File>
           </Files>
         </Group>
-        <Group>
-          <GroupName>LIS3DSH</GroupName>
-          <Files>
-            <File>
-              <FileName>lis3dsh.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\LIS3DSH\lis3dsh.c</FilePath>
-            </File>
-            <File>
-              <FileName>lis3dsh.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\LIS3DSH\lis3dsh.h</FilePath>
-            </File>
-          </Files>
-        </Group>
       </Groups>
     </Target>
   </Targets>
