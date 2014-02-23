@@ -30,7 +30,7 @@
 #define LIS302DL_INTERRUPT_I2CFG_FFWU2                    ((uint8_t)0x10)
 #define LIS302DL_INTERRUPT_I2CFG_FFWU12                   ((uint8_t)0x18)
 #define LIS302DL_INTERRUPT_I2CFG_DATAREADY                ((uint8_t)0x20)
-#define LIS302DL_INTERRUPT_I2CFG_NOSIG                    ((uint8_t)0x38)
+#define LIS302DL_INTERRUPT_I2CFG_CLICK                    ((uint8_t)0x38)
 
 /* Interrupt 1 configuration bits */
 #define LIS302DL_INTERRUPT_I1CFG_GND                      ((uint8_t)0x00)
@@ -38,7 +38,7 @@
 #define LIS302DL_INTERRUPT_I1CFG_FFWU2                    ((uint8_t)0x02)
 #define LIS302DL_INTERRUPT_I1CFG_FFWU12                   ((uint8_t)0x03)
 #define LIS302DL_INTERRUPT_I1CFG_DATAREADY                ((uint8_t)0x04)
-#define LIS302DL_INTERRUPT_I1CFG_NOSIG                    ((uint8_t)0x07)
+#define LIS302DL_INTERRUPT_I1CFG_CLICK                    ((uint8_t)0x07)
 
 
 /* Private types ----------------------------------------------------------------*/
@@ -94,8 +94,7 @@ void LIS302DL_CTRLREG3_Init(LIS302DL_ControlReg3TypeDef* LIS302DL_ControlReg3Str
  */
 void LIS302DL_Sensor_Init(void)
 {
-  uint8_t buffer;
-  
+
   /* configuration of LIS302DL */
 	/* put sensor in active mode */
   LIS302DL_InitStruct.Power_Mode = LIS302DL_LOWPOWERMODE_ACTIVE;
@@ -134,15 +133,9 @@ void LIS302DL_Sensor_Init(void)
   LIS302DL_ControlReg3Struct.Interrupt_PP_OD = LIS302DL_INTERRUPT_PPOD_PP;
   /* INT2 pad sends GND signal */
   LIS302DL_ControlReg3Struct.INT2_Configuration = LIS302DL_INTERRUPT_I2CFG_GND;
-  /* INT1 pad sends FFWU1 interrupt signal */
-  LIS302DL_ControlReg3Struct.INT1_Configuration = LIS302DL_INTERRUPT_I1CFG_FFWU1;
+  /* INT1 pad sends DATAREADY interrupt signal */
+  LIS302DL_ControlReg3Struct.INT1_Configuration = LIS302DL_INTERRUPT_I1CFG_DATAREADY;
   LIS302DL_CTRLREG3_Init(&LIS302DL_ControlReg3Struct);
-  
-  /* configuration of FF_WU1, enable interrupt of XYZ at threshold 0*/
-  buffer = 0x3f;
-  LIS302DL_Write(&buffer, LIS302DL_FF_WU_CFG1_REG_ADDR, 1);
-  buffer = 0x00;
-  LIS302DL_Write(&buffer, LIS302DL_FF_WU_THS1_REG_ADDR, 1);
 
 }
 
@@ -201,11 +194,12 @@ void EXTI0_INIT(void)
  */
 void accelerometer_init(void)
 {
-  /* enable the interrupt on PE0 EXTI0 */
-  EXTI0_INIT();
+  uint8_t buffer[6];
   /* enable the LIS302DL sensor to generate interrupts */
   LIS302DL_Sensor_Init();
-
-
+  /* enable the interrupt on PE0 EXTI0 */
+  EXTI0_INIT();
+  /* Trigger one data reading */
+  LIS302DL_Read(buffer, LIS302DL_OUT_X_ADDR, 6);
 }
 

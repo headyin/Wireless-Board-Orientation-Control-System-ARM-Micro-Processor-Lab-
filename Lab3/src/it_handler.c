@@ -10,6 +10,7 @@
 /* Includes ----------------------------------------------*/
 #include "it_handler.h"
 #include "stm32f4_discovery_lis302dl.h"
+#include "stm32f4xx_exti.h"
 #include "stdio.h"
 
 /* Private variables */
@@ -26,6 +27,7 @@ uint8_t buffer;
  */
 void EXTI0_IRQHandler(void)
 {
+  if(EXTI_GetITStatus(EXTI_Line0) == RESET) return;
   LIS302DL_Read(&buffer, LIS302DL_OUT_X_ADDR, 1);
   x_acceleration = (int8_t) buffer;
   LIS302DL_Read(&buffer, LIS302DL_OUT_Y_ADDR, 1);
@@ -34,6 +36,18 @@ void EXTI0_IRQHandler(void)
   z_acceleration = (int8_t) buffer;
   
   printf("%d, %d, %d\n", x_acceleration, y_acceleration, z_acceleration);
+
+  /* Clear the EXTI line 0 pending bit */
+  EXTI_ClearITPendingBit(EXTI_Line0);
+}
+
+/**
+ * @brief Interrupt handler for system tick
+ * @param  None
+ * @retval None
+ */
+void SysTick_Handler(void)
+{
 }
 
 

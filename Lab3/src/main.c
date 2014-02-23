@@ -4,6 +4,8 @@
 #include "math.h"
 #include "atan_LUT.h"
 #include "accelerometer.h"
+#include "it_handler.h"
+
 
 int main()
 {
