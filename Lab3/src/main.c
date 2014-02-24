@@ -9,7 +9,7 @@
 
 int main()
 {
-  accelerometer_init();
+   accelerometer_init();
   
   while (1)
   {

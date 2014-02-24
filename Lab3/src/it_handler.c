@@ -11,13 +11,47 @@
 #include "it_handler.h"
 #include "stm32f4_discovery_lis302dl.h"
 #include "stm32f4xx_exti.h"
+#include "atan_LUT.h"
+#include "math.h"
 #include "stdio.h"
 
-/* Private variables */
+#define PI 3.1415926f
+
+/* Private constants --------------------------------------*/
+/* 10000 times of the calibration matrix */
+int16_t calibration[4][3] = {185, 3  ,  3 ,
+                              0 , 180,  -7,
+                              0 , 3  , 185,
+                              0 , 447, -202};
+
+/* Private variables -------------------------------------*/
 int8_t x_acceleration;
 int8_t y_acceleration;
 int8_t z_acceleration;
 uint8_t buffer;
+
+float rollAngle;
+
+float acceleration[3];
+
+/* Private functions ----------------------------------- */
+void calibrate()
+{
+	acceleration[0] = (float) (calibration[0][0]*x_acceleration+calibration[0][1]*y_acceleration+calibration[0][2]*z_acceleration+calibration[3][0]) / 10000;
+	acceleration[1] = (float) (calibration[1][0]*x_acceleration+calibration[1][1]*y_acceleration+calibration[1][2]*z_acceleration+calibration[3][1]) / 10000;
+	acceleration[2] = (float) (calibration[2][0]*x_acceleration+calibration[2][1]*y_acceleration+calibration[2][2]*z_acceleration+calibration[3][2]) / 10000;
+}
+
+float getPitch()
+{
+	return  atan_table(acceleration[0]/ sqrt((acceleration[1]*acceleration[1])+(acceleration[2]*acceleration[2])));
+}
+
+float getRoll()
+{
+	return  atan_table(acceleration[1]/ sqrt((acceleration[0]*acceleration[0])+(acceleration[2]*acceleration[2])));
+}
+
 
 /* Public functions ------------------------------------*/
 /**
@@ -34,9 +68,10 @@ void EXTI0_IRQHandler(void)
   y_acceleration = (int8_t) buffer;
   LIS302DL_Read(&buffer, LIS302DL_OUT_Z_ADDR, 1);
   z_acceleration = (int8_t) buffer;
-  
-  printf("%d, %d, %d\n", x_acceleration, y_acceleration, z_acceleration);
-
+  calibrate();
+	rollAngle = getRoll();
+  //printf("%f, %f %f\n", acceleration[0], acceleration[1], acceleration[2]);
+  printf("%f\n", rollAngle);
   /* Clear the EXTI line 0 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line0);
 }
