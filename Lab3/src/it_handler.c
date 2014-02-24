@@ -19,20 +19,26 @@
 
 /* Private constants --------------------------------------*/
 /* 10000 times of the calibration matrix */
-int16_t calibration[4][3] = {185, 3  ,  3 ,
-                              0 , 180,  -7,
-                              0 , 3  , 185,
-                              0 , 447, -202};
+int16_t calibration[4][3] = {185, 5  ,  3 ,
+                              0 , 179,  0,
+                              0 , 2  , 185,
+                              0 , 357, -62};
 
 /* Private variables -------------------------------------*/
 int8_t x_acceleration;
 int8_t y_acceleration;
 int8_t z_acceleration;
 uint8_t buffer;
-
 float rollAngle;
-
 float acceleration[3];
+
+/*
+//used for calibration
+int16_t n = 0;
+int16_t sumx = 0;
+int16_t sumy = 0;
+int16_t sumz = 0;
+*/
 
 /* Private functions ----------------------------------- */
 void calibrate()
@@ -68,11 +74,27 @@ void EXTI0_IRQHandler(void)
   y_acceleration = (int8_t) buffer;
   LIS302DL_Read(&buffer, LIS302DL_OUT_Z_ADDR, 1);
   z_acceleration = (int8_t) buffer;
-  calibrate();
+  
+	/* used for calibration
+	n++;
+	if (n > 100 && n <= 600)
+	{
+		sumx += x_acceleration;
+		sumy += y_acceleration;
+		sumz += z_acceleration;
+	}
+	if (n == 600)
+	{
+		printf("%d, %d, %d\n", sumx / 500, sumy / 500, sumz / 500);
+		n = 0;
+	}*/
+	
+	calibrate();
 	rollAngle = getRoll();
   //printf("%f, %f %f\n", acceleration[0], acceleration[1], acceleration[2]);
   printf("%f\n", rollAngle);
-  /* Clear the EXTI line 0 pending bit */
+  
+	/* Clear the EXTI line 0 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line0);
 }
 

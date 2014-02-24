@@ -1,6 +1,6 @@
 % Raw values from position 1
 x1=0;
-y1=-3;
+y1=-2;
 z1=55;
 % Raw values from position 2
 x2=0;
@@ -8,8 +8,8 @@ y2=-1;
 z2=-53;
 % Raw values from position 3
 x3=0;
-y3=53;
-z3=4;
+y3=54;
+z3=0;
 % Raw values from position 4
 x4=0;
 y4=-58;
@@ -20,7 +20,7 @@ y5=-4;
 z5=-1;
 % Raw values from position 6
 x6=-54;
-y6=-2;
+y6=-1;
 z6=1;
 % Y is the normalized Earth gravity vector (see Table 2)
 Y=[0,0,1;0,0,-1;0,1,0;0,-1,0;1,0,0;-1,0,0];
