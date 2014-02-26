@@ -13,6 +13,8 @@
 #include "stm32f4xx_syscfg.h"
 #include "misc.h"
 #include "accelerometer.h"
+#include "atan_LUT.h"
+#include "math.h"
 
 /* Private defines -------------------------------------------------------- */
 
@@ -40,6 +42,7 @@
 #define LIS302DL_INTERRUPT_I1CFG_DATAREADY                ((uint8_t)0x04)
 #define LIS302DL_INTERRUPT_I1CFG_CLICK                    ((uint8_t)0x07)
 
+#define PI 3.1415926f
 
 /* Private types ----------------------------------------------------------------*/
 
@@ -52,10 +55,36 @@ typedef struct
 } LIS302DL_ControlReg3TypeDef;
 
 /* Private variables ------------------------------------------------------------*/
+/* 10000 times of the calibration matrix */
+int16_t calibration[4][3] = {185, 5  ,  3 ,
+                              0 , 179,  0,
+                              0 , 2  , 185,
+                              0 , 357, -62};
+
+/*variables used for acceleration calibration */
+int8_t x_acceleration;
+int8_t y_acceleration;
+int8_t z_acceleration;
+uint8_t buffer;
+
+float acceleration[3];
 
 
 
 /* Private functions -------------------------------------------------------- */
+
+/* Private functions ----------------------------------- */
+/**
+ * @brief  calibrate the sensor data
+ * @param  None
+ * @retval None
+ */
+void calibrate()
+{
+	acceleration[0] = (float) (calibration[0][0]*x_acceleration+calibration[0][1]*y_acceleration+calibration[0][2]*z_acceleration+calibration[3][0]) / 10000;
+	acceleration[1] = (float) (calibration[1][0]*x_acceleration+calibration[1][1]*y_acceleration+calibration[1][2]*z_acceleration+calibration[3][1]) / 10000;
+	acceleration[2] = (float) (calibration[2][0]*x_acceleration+calibration[2][1]*y_acceleration+calibration[2][2]*z_acceleration+calibration[3][2]) / 10000;
+}
 
 /**
  * @brief  Initialize the control register 3 for the interrupt type configuration
@@ -202,5 +231,41 @@ void accelerometer_init(void)
   EXTI0_INIT();
   /* Trigger one data reading */
   LIS302DL_Read(buffer, LIS302DL_OUT_X_ADDR, 6);
+}
+
+/**
+ * @brief  measure and calibrate the acceleration value;
+ * @param  None
+ * @retval None
+ */
+void measure_accleration(void)
+{
+  LIS302DL_Read(&buffer, LIS302DL_OUT_X_ADDR, 1);
+  x_acceleration = (int8_t) buffer;
+  LIS302DL_Read(&buffer, LIS302DL_OUT_Y_ADDR, 1);
+  y_acceleration = (int8_t) buffer;
+  LIS302DL_Read(&buffer, LIS302DL_OUT_Z_ADDR, 1);
+  z_acceleration = (int8_t) buffer;
+
+  calibrate();
+}
+
+/**
+ * @brief  calculate pitch angle
+ * @param  None
+ * @retval pitch angle
+ */
+float getPitch(void)
+{
+	return  atan_table(acceleration[0]/ sqrt((acceleration[1]*acceleration[1])+(acceleration[2]*acceleration[2])));
+}
+/**
+ * @brief  calculate roll angle
+ * @param  None
+ * @retval roll angle
+ */
+float getRoll(void)
+{
+	return  atan_table(acceleration[1]/ sqrt((acceleration[0]*acceleration[0])+(acceleration[2]*acceleration[2])));
 }
 

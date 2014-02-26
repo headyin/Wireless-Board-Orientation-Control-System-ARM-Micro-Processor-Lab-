@@ -5,5 +5,8 @@
 
 /* Public functions ------------------------------------ */
 void accelerometer_init(void);
+float getPitch(void);
+float getRoll(void);
+void measure_accleration(void);
 
 #endif
