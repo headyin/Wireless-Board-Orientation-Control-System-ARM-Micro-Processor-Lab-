@@ -17,6 +17,7 @@
 #include "stm32f4xx_tim.h"
 #include "sseg_display.h"
 #include "filter.h"
+#include "servo_motor.h"
 
 #define PI 3.1415926f
 
@@ -102,6 +103,9 @@ void EXTI0_IRQHandler(void)
 	calibrate();
 	rollAngle = getRoll() + 90;
 	degree_MA = filter_add(round(rollAngle));
+    
+    servo_motor_update(degree_MA);
+    
 	/* digit to be displayed in seven-seg */
 	display_digit[0] = (uint16_t) degree_MA / 100;
 	display_digit[1] = (uint16_t) degree_MA / 10 % 10;
@@ -109,7 +113,7 @@ void EXTI0_IRQHandler(void)
 	display_digit[2] = (uint16_t) degree_MA % 10 + 10;
 
   //printf("%f, %f %f\n", acceleration[0], acceleration[1], acceleration[2]);
-  printf("%f\n", degree_MA / 10.0);
+  printf("%d\n", degree_MA);
   
 	/* Clear the EXTI line 0 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line0);
