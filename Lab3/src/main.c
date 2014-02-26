@@ -5,11 +5,13 @@
 #include "atan_LUT.h"
 #include "accelerometer.h"
 #include "it_handler.h"
+#include "sseg_display.h"
 
 
 int main()
 {
-   accelerometer_init();
+  accelerometer_init();
+	sseg_display_init();
   
   while (1)
   {

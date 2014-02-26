@@ -14,6 +14,9 @@
 #include "atan_LUT.h"
 #include "math.h"
 #include "stdio.h"
+#include "stm32f4xx_tim.h"
+#include "sseg_display.h"
+#include "filter.h"
 
 #define PI 3.1415926f
 
@@ -25,12 +28,19 @@ int16_t calibration[4][3] = {185, 5  ,  3 ,
                               0 , 357, -62};
 
 /* Private variables -------------------------------------*/
+/*variables used for acceleration calibration */
 int8_t x_acceleration;
 int8_t y_acceleration;
 int8_t z_acceleration;
 uint8_t buffer;
 float rollAngle;
 float acceleration[3];
+int16_t degree_MA;
+
+/* variables used for seven-seg display*/
+const uint16_t Display_Select[3] = {DISPLAY_SELECT_1, DISPLAY_SELECT_2, DISPLAY_SELECT_3};
+uint16_t display_digit[3];
+uint16_t displayNumber = 0;
 
 /*
 //used for calibration
@@ -90,9 +100,16 @@ void EXTI0_IRQHandler(void)
 	}*/
 	
 	calibrate();
-	rollAngle = getRoll();
+	rollAngle = getRoll() + 90;
+	degree_MA = filter_add(round(rollAngle));
+	/* digit to be displayed in seven-seg */
+	display_digit[0] = (uint16_t) degree_MA / 100;
+	display_digit[1] = (uint16_t) degree_MA / 10 % 10;
+	/* display a dot as well */
+	display_digit[2] = (uint16_t) degree_MA % 10 + 10;
+
   //printf("%f, %f %f\n", acceleration[0], acceleration[1], acceleration[2]);
-  printf("%f\n", rollAngle);
+  printf("%f\n", degree_MA / 10.0);
   
 	/* Clear the EXTI line 0 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line0);
@@ -107,4 +124,19 @@ void SysTick_Handler(void)
 {
 }
 
+/** 
+  * @brief  This function handles TIM3 global interrupt request. 
+  * @param  None 
+  * @retval None 
+  */
+void TIM3_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
+	{
+		/*select one of the three displays each time */
+		displayNumber = (displayNumber + 1) % 3;
+		sseg_display(Display_Select[displayNumber], display_digit[displayNumber]);
+		TIM_ClearITPendingBit(TIM3, TIM_IT_CC1); 
+	}
 
+}

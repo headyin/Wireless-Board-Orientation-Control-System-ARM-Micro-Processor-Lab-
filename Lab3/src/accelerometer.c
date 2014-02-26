@@ -53,16 +53,7 @@ typedef struct
 
 /* Private variables ------------------------------------------------------------*/
 
-/* strctures used for LIS302DL initialization */
-LIS302DL_InitTypeDef  LIS302DL_InitStruct;
-LIS302DL_FilterConfigTypeDef LIS302DL_FilterConfigStruct;
-LIS302DL_InterruptConfigTypeDef LIS302DL_InterruptStruct;
-LIS302DL_ControlReg3TypeDef LIS302DL_ControlReg3Struct;
 
-/*structures used for the initialization of related GPIOs (GPIOE) and EXTI */
-GPIO_InitTypeDef   GPIO_InitStructure;
-EXTI_InitTypeDef   EXTI_InitStructure;
-NVIC_InitTypeDef   NVIC_InitStructure;
 
 /* Private functions -------------------------------------------------------- */
 
@@ -94,6 +85,11 @@ void LIS302DL_CTRLREG3_Init(LIS302DL_ControlReg3TypeDef* LIS302DL_ControlReg3Str
  */
 void LIS302DL_Sensor_Init(void)
 {
+	/* strctures used for LIS302DL initialization */
+	LIS302DL_InitTypeDef  LIS302DL_InitStruct;
+	LIS302DL_FilterConfigTypeDef LIS302DL_FilterConfigStruct;
+	LIS302DL_InterruptConfigTypeDef LIS302DL_InterruptStruct;
+	LIS302DL_ControlReg3TypeDef LIS302DL_ControlReg3Struct;
 
   /* configuration of LIS302DL */
 	/* put sensor in active mode */
@@ -147,6 +143,11 @@ void LIS302DL_Sensor_Init(void)
  */
 void EXTI0_INIT(void)
 {
+	/*structures used for the initialization of related GPIOs (GPIOE) and EXTI */
+	GPIO_InitTypeDef   GPIO_InitStructure;
+	EXTI_InitTypeDef   EXTI_InitStructure;
+	NVIC_InitTypeDef   NVIC_InitStructure;
+
   /* Enable GPIOE clock */
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
   /* Enable SYSCFG clock */
