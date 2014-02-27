@@ -68,13 +68,14 @@ void sseg_TIM_init(void)
     NVIC_Init(&NVIC_InitStructure);
 	
 	/*
-	 * TIM3 counter clock frequency = 30MHz
+	 * TIM3 counter clock frequency = 3MHz
 	 * Prescaler = (TIM3CLK / TIM3 counter clock frequency) - 1
 	 */
-	prescaler = (uint16_t) ((SystemCoreClock / 2) / 30000000) - 1;
+	prescaler = (uint16_t) ((SystemCoreClock / 2) / 3000000) - 1;
 	
 	/* Time base configuration */
-    TIM_TimeBaseStructure.TIM_Period = 65535;
+    /* TIM_Period = 20000, TIM3 Interrupt frequency = TIM3 Counter Frequency / TIM_Pulse = 150Hz*/
+    TIM_TimeBaseStructure.TIM_Period = 20000;
     TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	/* up-counting counter mode, counter counts from 0 to ARR and restarts from 0 */
@@ -82,7 +83,6 @@ void sseg_TIM_init(void)
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
 	
 	/* Output Compare Timing Mode configuration: Channel1 */
-	/* TIM_Pulse = 20000, TIM3 Interrupt frequency = TIM3 Counter Frequency / TIM_Pulse = 1500Hz*/
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
     TIM_OCInitStructure.TIM_Pulse = 20000;
