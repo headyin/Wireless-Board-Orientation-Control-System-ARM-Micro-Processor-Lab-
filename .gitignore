@@ -10,3 +10,5 @@ lst/
 
 *.dep
 lab?/*.uvgui*
+lab?/keil/*.uvgui*
+lab4/keil/output.map
