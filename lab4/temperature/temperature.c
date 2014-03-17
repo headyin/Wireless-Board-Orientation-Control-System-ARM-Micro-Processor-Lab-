@@ -38,6 +38,7 @@ osSemaphoreDef(tempeature_semaphore);
 osThreadDef(temperature_Thread, osPriorityNormal, 1, 0);
 //define a mutex
 osMutexDef (temperatureFilterMutex);
+osThreadId tempeature_thread_id;
 
 /* Private functions -------------------------------------------------------------*/
 
@@ -244,6 +245,7 @@ osThreadId  temperature_Thread_Create(void)
   temperature_filter_struct.mutexId = osMutexCreate(osMutex (temperatureFilterMutex));
   
   //create temperature thread
-  return osThreadCreate(osThread(temperature_Thread), NULL);
+  tempeature_thread_id = osThreadCreate(osThread(temperature_Thread), NULL);
+  return tempeature_thread_id;
 }
 

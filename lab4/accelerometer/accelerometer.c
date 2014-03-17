@@ -16,6 +16,10 @@
 #include "atan_LUT.h"
 #include "math.h"
 #include "servo_motor.h"
+#include "maFilter.h"
+#include "LIS302DL/stm32f4_discovery_lis302dl.h"
+
+#include "stdio.h"
 
 /* Private defines -------------------------------------------------------- */
 
@@ -71,8 +75,7 @@ uint8_t buffer;
 float acceleration[3];
 
 /* Private variables ------------------------------------------------------------*/
-//timer id
-osTimerId accelerometer_timer_id;
+
 //semaphore
 osSemaphoreId accelerometer_semaphore;
 //structure used for moving average filter for the roll
@@ -81,19 +84,28 @@ MA_Filter accelerometer_roll_filter_struct;
 MA_Filter accelerometer_pitch_filter_struct;
                               
 /* Private functions ----------------------------------------------------------- */
-void accelerometer_Timer_Callback(void const *arg)
+
+ /**
+ * @brief  This function handles the EXTI1 interrupt
+ * @param  None
+ * @retval None
+ */
+void EXTI1_IRQHandler(void)
 {
+  if(EXTI_GetITStatus(EXTI_Line1) == RESET) return;
   //add accelerometer_semaphore by 1, so the accelerometer thread can measure the acceleration once
   osSemaphoreRelease (accelerometer_semaphore);
+  /* Clear the EXTI line 0 pending bit */
+  EXTI_ClearITPendingBit(EXTI_Line1);
 }
 
-//definations for timer, semaphore and thread
-osTimerDef (accelerometer_Timer, accelerometer_Timer_Callback); 
+//definations for semaphore and thread
 osSemaphoreDef(accelerometer_semaphore); 
 osThreadDef(accelerometer_Thread, osPriorityNormal, 1, 0);
 //define a mutex
-osMutexDef (accelerometerFilterMutex);
-
+osMutexDef (accelerometerRollFilterMutex);
+osMutexDef (accelerometerPitchFilterMutex);
+osThreadId accelerometer_thread_id;
 
 /* Private functions ----------------------------------- */
 /**
@@ -178,17 +190,17 @@ void LIS302DL_Sensor_Init(void)
   LIS302DL_ControlReg3Struct.Interrupt_Polarity = LIS302DL_INTERRUPT_ACTIVE_HIGH;
   /* interrupt pad push-pull */
   LIS302DL_ControlReg3Struct.Interrupt_PP_OD = LIS302DL_INTERRUPT_PPOD_PP;
-  /* INT2 pad sends GND signal */
+  /* INT2 pad sends DATAREADY interrupt signal */
   LIS302DL_ControlReg3Struct.INT2_Configuration = LIS302DL_INTERRUPT_I2CFG_DATAREADY;
-  /* INT1 pad sends DATAREADY interrupt signal */
+  /* INT1 pad sends GND signal */
   LIS302DL_ControlReg3Struct.INT1_Configuration = LIS302DL_INTERRUPT_I1CFG_GND;
   LIS302DL_CTRLREG3_Init(&LIS302DL_ControlReg3Struct);
 
 }
 
 /**
- * @brief  Enable GPIOE port 0 and connect it EXTI0 
- *         and set EXTI0 interrupt to highest prioroty
+ * @brief  Enable GPIOE port 1 and connect it EXTI1
+ *         and set EXTI1 interrupt to highest prioroty
  * @param  None
  * @retval None
  */
@@ -204,7 +216,7 @@ void EXTI1_INIT(void)
   /* Enable SYSCFG clock */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
   
-  /* Configure PE0 pin as input floating */
+  /* Configure PE1 pin as input floating */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
@@ -220,7 +232,7 @@ void EXTI1_INIT(void)
   EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
   /* Rrigger interrupt on the rising edge*/
   EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-  /* Enable EXTI Line0 */
+  /* Enable EXTI Line1 */
   EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   EXTI_Init(&EXTI_InitStructure);
   
@@ -246,11 +258,16 @@ void EXTI1_INIT(void)
  */
 void accelerometer_init(void)
 {
-  uint8_t buffer[6];
   /* enable the LIS302DL sensor to generate interrupts */
   LIS302DL_Sensor_Init();
   /* enable the interrupt on PE0 EXTI0 */
   EXTI1_INIT();
+
+}
+
+void accelerometer_start(void)
+{
+  uint8_t buffer[6];
   /* Trigger one data reading */
   LIS302DL_Read(buffer, LIS302DL_OUT_X_ADDR, 6);
 }
@@ -299,25 +316,20 @@ float getRoll(void)
   */
 void accelerometer_Thread(void const * argument)
 {
-  float rollAngle;
-  int16_t degree_MA;
-  accelerometer_init();
-  filter_init(&accelerometer_roll_filter_struct, 30);
-  filter_init(&accelerometer_pitch_filter_struct,30);
-  accelerometer_roll_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerFilterMutex));
-  accelerometer_pitch_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerFilterMutex));
+  float rollAngle, pitchAngle;
+  int16_t roll_degree_MA, pitch_degree_MA;
   
   while (1)
   {
     osSemaphoreWait (accelerometer_semaphore, osWaitForever);   
     measure_accleration();
     rollAngle = getRoll() + 90;
-    pitchAngle = getPitch + 90;
+    pitchAngle = getPitch() + 90;
     filter_add((int16_t) round(rollAngle * 100), &accelerometer_roll_filter_struct);
     filter_add((int16_t) round(pitchAngle * 100), &accelerometer_pitch_filter_struct);
     roll_degree_MA = filter_average(&accelerometer_roll_filter_struct);
     pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct);
-    servo_motor_update(roll_degree_MA);
+    //servo_motor_update(roll_degree_MA);
     printf("%f, %f\n",roll_degree_MA/100.0,pitch_degree_MA/100.0);
   }
 }
@@ -329,8 +341,17 @@ void accelerometer_Thread(void const * argument)
   */
 osThreadId  accelerometer_Thread_Create(void)
 {
+  accelerometer_init();
+  filter_init(&accelerometer_roll_filter_struct, 30);
+  filter_init(&accelerometer_pitch_filter_struct,30);
+  accelerometer_roll_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerRollFilterMutex));
+  accelerometer_pitch_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerPitchFilterMutex));
+  
+  accelerometer_semaphore = osSemaphoreCreate(osSemaphore(accelerometer_semaphore), 1);
+  
   //start temperature thread
-  return osThreadCreate(osThread(accelerometer_Thread), NULL);
+  accelerometer_thread_id = osThreadCreate(osThread(accelerometer_Thread), NULL);
+  return accelerometer_thread_id;
 }
 
 
