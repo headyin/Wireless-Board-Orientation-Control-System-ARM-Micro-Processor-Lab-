@@ -28,13 +28,13 @@ void servo_motor_gpio_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     /* TIM4 clock enable */
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
     
     /* GPIOD clock enable*/
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     
-    /* GPIOD Configuration: TIM4 CH3 (PD14) */
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+    /* GPIOD Configuration: TIM2 CH4 (PB11) */
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
     /* GPIO Alternate function Mode */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	/* High speed */
@@ -45,8 +45,8 @@ void servo_motor_gpio_init(void)
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
     GPIO_Init(GPIOD, &GPIO_InitStructure);
 
-    /* Connect TIM4 pins to AF2 */  
-    GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
+    /* Connect TIM2 pins to AF2 */  
+    GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_TIM2);
 }
 
 /**
@@ -85,14 +85,14 @@ void servo_motor_tim_init(void)
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	/* Set CCR3 to 0 degree at initial*/
 	TIM_OCInitStructure.TIM_Pulse = NIGHTY_DEGREE_PULSE;
-	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	TIM_OC3Init(TIM2, &TIM_OCInitStructure);
 	
 	/* Enable the prereload of CCR3 register, which controls the duty circly of PWM */
-	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
-	/* Enable the prereload of TIM4_ARR register, which defermines the frequency of PWM */
-	TIM_ARRPreloadConfig(TIM4, ENABLE);
-	/* TIM4 enable counter */
-	TIM_Cmd(TIM4, ENABLE);
+	TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);
+	/* Enable the prereload of TIM2_ARR register, which defermines the frequency of PWM */
+	TIM_ARRPreloadConfig(TIM2, ENABLE);
+	/* TIM2 enable counter */
+	TIM_Cmd(TIM2, ENABLE);
 }
 
 /**
@@ -115,6 +115,6 @@ void servo_motor_update(int16_t rollAngle)
 {
     uint16_t pulse = NIGHTY_DEGREE_PULSE + round((rollAngle - 90) * PULSE_DEGREE_SLOP);
 	TIM_OCInitStructure.TIM_Pulse = pulse;
-	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	TIM_OC3Init(TIM2, &TIM_OCInitStructure);
 
 }
