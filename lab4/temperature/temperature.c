@@ -27,36 +27,36 @@
 #define AVG_SLOPE 2.5
 
 /* Private variables ------------------------------------------------------------*/
-//teimer id
-osTimerId temperature_timer_id;
+
 //semaphore
 osSemaphoreId tempeature_semaphore;
 //structure used for moving average filter
 MA_Filter temperature_filter_struct;
 
-/* Private functions -------------------------------------------------------------*/
-
-void temperature_Timer_Callback(void const *arg)
-{
-  //add tempeature_semaphore by 1, so the temperature thead can measure the tempeature once
-  osSemaphoreRelease (tempeature_semaphore);
-}
-
 //definations for timer, semaphore and thread
-osTimerDef (tempeature_Timer, temperature_Timer_Callback); 
 osSemaphoreDef(tempeature_semaphore); 
 osThreadDef(temperature_Thread, osPriorityNormal, 1, 0);
 //define a mutex
 osMutexDef (temperatureFilterMutex);
 
+/* Private functions -------------------------------------------------------------*/
 
-/* Public Functions --------------------------------------------------------------*/
-/**
-  * @brief  initialize the necessary peripherals needed
-  * @param  None
-  * @retval None
+/** 
+  * @brief  This function handles TIM3 global interrupt request. 
+  * @param  None 
+  * @retval None 
   */
-void temperature_Init(void)
+void TIM3_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
+  {
+    //add tempeature_semaphore by 1, so the temperature thead can measure the tempeature once
+    osSemaphoreRelease (tempeature_semaphore);
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1); 
+	}
+}
+
+void temperature_ADC_Init(void)
 {
   /* ADC common init structure */
   ADC_CommonInitTypeDef adc_common_init_s;
@@ -97,25 +97,74 @@ void temperature_Init(void)
 	ADC_TempSensorVrefintCmd(ENABLE);
 }
 
+void temperature_TIM_Init(void)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	TIM_OCInitTypeDef  TIM_OCInitStructure;
+	uint16_t prescaler;
+
+	/* TIM3 pheriph clock enable, TIM3 clock frequency = SystemCoreClock / 2 */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+  /* Enable TIM3 NVIC interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+  /*
+	 * TIM3 counter clock frequency = 1.5MHz
+	 * Prescaler = (TIM3CLK / TIM3 counter clock frequency) - 1
+	 */
+	prescaler = (uint16_t) ((SystemCoreClock / 2) / 1500000) - 1;
+	
+	/* Time base configuration */
+  /* TIM_Period = 50000, TIM3 Interrupt frequency = TIM3 Counter Frequency / TIM_Period = 25Hz*/
+  TIM_TimeBaseStructure.TIM_Period = 60000;
+  TIM_TimeBaseStructure.TIM_Prescaler = prescaler;
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	/* up-counting counter mode, counter counts from 0 to ARR and restarts from 0 */
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;	
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+  /* Output Compare Timing Mode configuration: Channel1 */
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Timing;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_Pulse = 60000;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OC1Init(TIM3, &TIM_OCInitStructure);
+
+  /* Disable TIM3 Channel 1 preload*/
+	TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
+	/* Enable TIM3_CH1 interrupt */
+	TIM_ITConfig(TIM3, TIM_IT_CC1, ENABLE);
+
+}
+/* Public Functions --------------------------------------------------------------*/
+/**
+  * @brief  initialize the necessary peripherals needed
+  * @param  None
+  * @retval None
+  */
+void temperature_Init(void)
+{
+  temperature_ADC_Init();
+  temperature_TIM_Init();
+
+}
+
 /**
   * @brief  start a periodic timer at 25Hz to start measuring the tempeature
   * @param  None
   * @retval None
   */
-osStatus temperature_Start(void)
+void temperature_Start(void)
 {
-  //create semaphore
-  tempeature_semaphore = osSemaphoreCreate(osSemaphore(tempeature_semaphore), 1);
-  
-  //create and start timer
-  temperature_timer_id = osTimerCreate (osTimer(tempeature_Timer), osTimerPeriodic, NULL);
-  if (temperature_timer_id != NULL)
-  {
-    //start timer with 40ms delay. 1000ms / 25Hz = 40
-    return osTimerStart (temperature_timer_id, 40);
-  }
-  //cannot create timer
-  return osErrorResource;
+  //start timer
+  /* Enable TIM3 */
+	TIM_Cmd(TIM3, ENABLE);
 }
 
 /**
@@ -168,9 +217,6 @@ void temperature_Thread(void const * argument)
 {
   float temp;
   int16_t sample;
-  temperature_Init();
-  filter_init(&temperature_filter_struct, 20);
-  temperature_filter_struct.mutexId = osMutexCreate(osMutex (temperatureFilterMutex));
   
   while (1)
   {
@@ -189,7 +235,15 @@ void temperature_Thread(void const * argument)
   */
 osThreadId  temperature_Thread_Create(void)
 {
-  //start temperature thread
+  //initialize ADC
+	temperature_Init();
+  //create semaphore
+  tempeature_semaphore = osSemaphoreCreate(osSemaphore(tempeature_semaphore), 1);
+	//initialize filter
+  filter_init(&temperature_filter_struct, 20);
+  temperature_filter_struct.mutexId = osMutexCreate(osMutex (temperatureFilterMutex));
+  
+  //create temperature thread
   return osThreadCreate(osThread(temperature_Thread), NULL);
 }
 

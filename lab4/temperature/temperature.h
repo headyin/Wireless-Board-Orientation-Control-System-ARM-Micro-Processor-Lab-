@@ -34,7 +34,7 @@ float temperature_MeasureValue(void);
   * @param  None
   * @retval None
   */
-osStatus temperature_Start(void);
+void temperature_Start(void);
 
 /**
   * @brief  create a thread for temperature measurement
