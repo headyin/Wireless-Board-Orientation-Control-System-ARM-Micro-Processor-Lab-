@@ -12,6 +12,7 @@
 #include "stdint.h"
 #include "stm32f4xx.h"
 #include "temperature\temperature.h"
+#include "temperature\pwm_alarm.h"
 #include "cmsis_os.h"
 #include "maFilter.h"
 #include "math.h"
@@ -227,6 +228,7 @@ void temperature_Thread(void const * argument)
     temp = temperature_MeasureValue();
     filter_add((int16_t) round(temp * 100), &temperature_filter_struct);
     sample = filter_average(&temperature_filter_struct);
+    pwm_alarm_update(sample / 100);
     //printf("%f\n", sample / 100.0);
   }
 }
@@ -246,6 +248,7 @@ osThreadId  temperature_Thread_Create(void)
 {
   //initialize ADC
 	temperature_Init();
+  pwm_alarm_init();
   //create semaphore
   tempeature_semaphore = osSemaphoreCreate(osSemaphore(tempeature_semaphore), 1);
 	//initialize filter

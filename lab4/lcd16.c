@@ -10,6 +10,8 @@
 char line1[LINE_LENGTH];
 char line2[LINE_LENGTH];
 
+
+
 //semaphore
 osSemaphoreId lcd_semaphore;
 osSemaphoreDef(lcd_semaphore); 
@@ -33,7 +35,15 @@ void TIM2_IRQHandler(void)
 
 void lcd_set_data(uint8_t data)
 {
-  uint16_t pins = 0x00ff & data;
+  uint16_t pins = 0x0000;
+  if (data & 0x01) pins |= LCD_DB0;
+  if (data & 0x02) pins |= LCD_DB1;
+  if (data & 0x04) pins |= LCD_DB2;
+  if (data & 0x08) pins |= LCD_DB3;
+  if (data & 0x10) pins |= LCD_DB4;
+  if (data & 0x20) pins |= LCD_DB5;
+  if (data & 0x40) pins |= LCD_DB6;
+  if (data & 0x80) pins |= LCD_DB7;
   GPIO_SetBits(LCD_GPIO, pins);
   GPIO_ResetBits(LCD_GPIO, LCD_RW);
 }
@@ -86,7 +96,7 @@ void lcd_gpio_init(void)
 {
   GPIO_InitTypeDef  lcd_GPIO_InitStructure;
   /* GPIOC Periph clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
   /* Configure PC0 -PC10 in output pushpull mode */
   lcd_GPIO_InitStructure.GPIO_Pin = LCD_PINS;

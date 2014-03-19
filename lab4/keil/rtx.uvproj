@@ -2432,6 +2432,11 @@
               <FileType>1</FileType>
               <FilePath>..\temperature\temperature.c</FilePath>
             </File>
+            <File>
+              <FileName>pwm_alarm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\temperature\pwm_alarm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
