@@ -1,6 +1,11 @@
 #ifndef LCD16_H
 #define LCD16_H
 
+#include "stdint.h"
+
+#define LINE_LENGTH 16
+#define VIRTUAL_LINE_LENGTH 40
+
 #define LCD_DB0 GPIO_Pin_0
 #define LCD_DB1 GPIO_Pin_1
 #define LCD_DB2 GPIO_Pin_2
@@ -19,5 +24,10 @@
 void lcd_clear_command(void);
 void lcd_write_char(char c);
 void lcd_display_init(void);
+void lcd_gpio_init(void);
+void lcd_send_character(uint8_t);
+void lcd_send_command(uint8_t command);
+void lcd_display_angles(float,float);
+void lcd_display_temperaure(float temp);
 
 #endif

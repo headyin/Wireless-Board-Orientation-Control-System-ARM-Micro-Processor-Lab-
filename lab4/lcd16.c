@@ -1,7 +1,11 @@
 #include "lcd16.h"
 #include "stm32f4xx.h"
+#include "cmsis_os.h"
+#include "string.h"
+#include "stdio.h"
 
-
+char line1[LINE_LENGTH];
+char line2[LINE_LENGTH];
 
 void lcd_set_data(uint8_t data)
 {
@@ -12,24 +16,24 @@ void lcd_set_data(uint8_t data)
 
 void lcd_send_character(uint8_t character)
 {
-  int i;
-  GPIO_SetBits(LCD_GPIO, LCD_EN);
+  GPIO_ResetBits(LCD_GPIO, LCD_PINS);
   lcd_set_data(character);
   GPIO_SetBits(LCD_GPIO, LCD_RS);
-  for (i = 0; i < 100000; i++);
+  GPIO_SetBits(LCD_GPIO, LCD_EN);
+  osDelay(1);
   GPIO_ResetBits(LCD_GPIO, LCD_EN);
+  osDelay(1);
 }
 
 void lcd_send_command(uint8_t command)
 {
-  int i;
-  GPIO_SetBits(LCD_GPIO, LCD_EN);
+  GPIO_ResetBits(LCD_GPIO, LCD_PINS);
   lcd_set_data(command);
   GPIO_ResetBits(LCD_GPIO, LCD_RS);
-  for (i = 0; i < 100000; i++);
+  GPIO_SetBits(LCD_GPIO, LCD_EN);
+  osDelay(1);
   GPIO_ResetBits(LCD_GPIO, LCD_EN);
-  for (i = 0; i < 1000000; i++);
-
+  osDelay(2);
 }
 
 void lcd_clear_command(void)
@@ -44,10 +48,12 @@ void lcd_write_char(char c)
 
 void lcd_display_init(void)
 {
+  //function set 2 lines, 8-bit interface
+  lcd_send_command(0x38);
+  //enable display(0x0c) and cursor display(0x0e)
+  lcd_send_command(0x0c);
+  //clear
   lcd_send_command(0x01);
-  lcd_send_command(0x02);
-  lcd_send_command(0x07);
-  lcd_send_command(0x0f);  
 }
 
 void lcd_gpio_init(void)
@@ -69,5 +75,42 @@ void lcd_gpio_init(void)
   GPIO_Init(LCD_GPIO, &lcd_GPIO_InitStructure);
 }
 
+void lcd_display_angles(float roll, float pitch)
+{
+  int i;
+  lcd_clear_command();
+  memset(line1,0,strlen(line1));
+  memset(line2,0,strlen(line2));
+  snprintf(line1, LINE_LENGTH + 1, "Roll  : %.1f%c", roll, 0xdf);
+  snprintf(line2, LINE_LENGTH + 1, "Pitch : %.1f%c", pitch, 0xdf);
+  for (i = 0; i < strlen(line1); i++) {
+    lcd_write_char(line1[i]);
+  }
+  for (i = 0; i < VIRTUAL_LINE_LENGTH - strlen(line1); i++) {
+    lcd_write_char(' ');
+  }
+  for (i = 0; i < strlen(line2); i++) {
+    lcd_write_char(line2[i]);
+  }
+}
+
+void lcd_display_temperaure(float temp)
+{
+  int i;
+  lcd_clear_command();
+  memset(line1,0,strlen(line1));
+  memset(line2,0,strlen(line2));
+  snprintf(line1, LINE_LENGTH + 1, "Temperature:");
+  snprintf(line2, LINE_LENGTH + 1, "    %.1f%cC", temp, 0xdf);
+  for (i = 0; i < strlen(line1); i++) {
+    lcd_write_char(line1[i]);
+  }
+  for (i = 0; i < VIRTUAL_LINE_LENGTH - strlen(line1); i++) {
+    lcd_write_char(' ');
+  }
+  for (i = 0; i < strlen(line2); i++) {
+    lcd_write_char(line2[i]);
+  }
+}
 
 
