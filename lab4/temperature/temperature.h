@@ -16,6 +16,8 @@
 
 /* Exported functions --------------------------------------------------------*/ 
 
+float get_filterd_tempeature(void);
+
 /**
   * @brief  initialize the necessary peripherals needed
   * @param  None

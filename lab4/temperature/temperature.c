@@ -15,6 +15,7 @@
 #include "cmsis_os.h"
 #include "maFilter.h"
 #include "math.h"
+#include "push_button.h"
 
 #include "stdio.h"
 
@@ -39,6 +40,8 @@ osThreadDef(temperature_Thread, osPriorityNormal, 1, 0);
 //define a mutex
 osMutexDef (temperatureFilterMutex);
 osThreadId tempeature_thread_id;
+
+int16_t sample;
 
 /* Private functions -------------------------------------------------------------*/
 
@@ -217,7 +220,6 @@ float temperature_MeasureValue(void)
 void temperature_Thread(void const * argument)
 {
   float temp;
-  int16_t sample;
   
   while (1)
   {
@@ -225,8 +227,14 @@ void temperature_Thread(void const * argument)
     temp = temperature_MeasureValue();
     filter_add((int16_t) round(temp * 100), &temperature_filter_struct);
     sample = filter_average(&temperature_filter_struct);
-    printf("%f\n", sample / 100.0);
+    //printf("%f\n", sample / 100.0);
   }
+}
+
+
+float get_filterd_tempeature(void)
+{
+  return sample / 100.0;
 }
 
 /**

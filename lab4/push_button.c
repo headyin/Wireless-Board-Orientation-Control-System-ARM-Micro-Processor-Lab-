@@ -8,6 +8,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+#include "push_button.h"
 #include "stm32f4xx_exti.h"
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_gpio.h"
@@ -16,14 +17,21 @@
 /* flag used to indicate accelerastion sensor interrupt */
 volatile uint_fast16_t thread_ready;
 
+
+uint_fast16_t getThreadToRun(void)
+{
+  return thread_ready;
+}
+
 /**
  * @brief  Enable GPIOA port 0 and connect it EXTI0 
  *         and set EXTI0 interrupt to highest prioroty
  * @param  None
  * @retval None
  */
-void EXTI0_INIT(void)
+void button_init(void)
 {
+  thread_ready = 0;
 	/*structures used for the initialization of related GPIOs (GPIOE) and EXTI */
 	GPIO_InitTypeDef   GPIO_InitStructure;
 	EXTI_InitTypeDef   EXTI_InitStructure;
@@ -57,9 +65,9 @@ void EXTI0_INIT(void)
   /* Enable and set EXTI Line0 Interrupt and the priority */
   NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
   /* Group Priority 0 */
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
   /* Sub-priority 0 */
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;
   /* Enable NVIC_IRQChannel */
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);

@@ -11,6 +11,8 @@ void measure_accleration(void);
 void accelerometer_Thread(void const * argument);
 osThreadId  accelerometer_Thread_Create(void);
 void accelerometer_start(void);
+float getFilteredRollAngle(void);
+float getFilteredPitchAngle(void);
 
 
 #endif

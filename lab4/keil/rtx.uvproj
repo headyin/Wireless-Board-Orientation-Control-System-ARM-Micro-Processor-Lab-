@@ -443,14 +443,14 @@
               <FilePath>..\maFilter.c</FilePath>
             </File>
             <File>
-              <FileName>push_button.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\push_button.c</FilePath>
-            </File>
-            <File>
               <FileName>lcd16.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\lcd16.c</FilePath>
+            </File>
+            <File>
+              <FileName>push_button.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\push_button.c</FilePath>
             </File>
           </Files>
         </Group>

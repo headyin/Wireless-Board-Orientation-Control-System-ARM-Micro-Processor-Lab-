@@ -2,6 +2,7 @@
 #define LCD16_H
 
 #include "stdint.h"
+#include "cmsis_os.h"
 
 #define LINE_LENGTH 16
 #define VIRTUAL_LINE_LENGTH 40
@@ -27,7 +28,11 @@ void lcd_display_init(void);
 void lcd_gpio_init(void);
 void lcd_send_character(uint8_t);
 void lcd_send_command(uint8_t command);
-void lcd_display_angles(float,float);
-void lcd_display_temperaure(float temp);
+void lcd_set_display_angles(float,float);
+void lcd_set_display_temperaure(float temp);
+
+void lcd_thread(void const * argument);
+osThreadId  lcd_thread_create(void);
+void lcd_start(void);
 
 #endif

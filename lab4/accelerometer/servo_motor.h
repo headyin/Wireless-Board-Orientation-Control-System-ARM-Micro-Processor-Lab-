@@ -13,7 +13,7 @@
 #include "stm32f4xx.h"
 
 void servo_motor_init(void);
-void servo_motor_update(int16_t rollAngle);
+void servo_motor_update(float rollAngle);
 
 
 #endif

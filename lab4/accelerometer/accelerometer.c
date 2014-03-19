@@ -18,6 +18,7 @@
 #include "servo_motor.h"
 #include "maFilter.h"
 #include "LIS302DL/stm32f4_discovery_lis302dl.h"
+#include "push_button.h"
 
 #include "stdio.h"
 
@@ -71,6 +72,8 @@ int8_t x_acceleration;
 int8_t y_acceleration;
 int8_t z_acceleration;
 uint8_t buffer;
+
+float roll_degree_MA, pitch_degree_MA;
 
 float acceleration[3];
 
@@ -317,21 +320,31 @@ float getRoll(void)
 void accelerometer_Thread(void const * argument)
 {
   float rollAngle, pitchAngle;
-  int16_t roll_degree_MA, pitch_degree_MA;
+
   
   while (1)
   {
     osSemaphoreWait (accelerometer_semaphore, osWaitForever);   
     measure_accleration();
-    rollAngle = getRoll() + 90;
-    pitchAngle = getPitch() + 90;
+    rollAngle = getRoll();
+    pitchAngle = getPitch();
     filter_add((int16_t) round(rollAngle * 100), &accelerometer_roll_filter_struct);
     filter_add((int16_t) round(pitchAngle * 100), &accelerometer_pitch_filter_struct);
-    roll_degree_MA = filter_average(&accelerometer_roll_filter_struct);
-    pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct);
-    //servo_motor_update(roll_degree_MA);
-    printf("%f, %f\n",roll_degree_MA/100.0,pitch_degree_MA/100.0);
+    roll_degree_MA = filter_average(&accelerometer_roll_filter_struct) / 100.0;
+    pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct) / 100.0;
+    servo_motor_update(roll_degree_MA);
+    //printf("%f, %f\n",roll_degree_MA,pitch_degree_MA);
   }
+}
+
+float getFilteredRollAngle(void)
+{
+  return  roll_degree_MA;
+}
+
+float getFilteredPitchAngle(void)
+{
+  return pitch_degree_MA; 
 }
 
 /**
@@ -342,6 +355,7 @@ void accelerometer_Thread(void const * argument)
 osThreadId  accelerometer_Thread_Create(void)
 {
   accelerometer_init();
+  servo_motor_init();
   filter_init(&accelerometer_roll_filter_struct, 30);
   filter_init(&accelerometer_pitch_filter_struct,30);
   accelerometer_roll_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerRollFilterMutex));
