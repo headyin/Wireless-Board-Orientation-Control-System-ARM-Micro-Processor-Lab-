@@ -5,6 +5,7 @@
 
 #include "temperature/temperature.h"
 #include "accelerometer/accelerometer.h"
+#include "lcd16.h"
 
 /*!
  @brief Program entry point
@@ -18,7 +19,10 @@ int main (void) {
   //start
   temperature_Start();
   accelerometer_start();
-
+  
+  //lcd_clear_command();
+  //lcd_write_char('a');
+  lcd_display_init();
   
   osDelay(osWaitForever);
 
