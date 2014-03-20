@@ -41,7 +41,7 @@ void temperature_Start(void);
 /**
   * @brief  create a thread for temperature measurement
   * @param  None
-  * @retval None
+  * @retval The thread ID for temperature
   */
 osThreadId  temperature_Thread_Create(void);
 
