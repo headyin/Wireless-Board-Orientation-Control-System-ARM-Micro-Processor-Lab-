@@ -98,7 +98,7 @@ void EXTI1_IRQHandler(void)
   if(EXTI_GetITStatus(EXTI_Line1) == RESET) return;
   //add accelerometer_semaphore by 1, so the accelerometer thread can measure the acceleration once
   osSemaphoreRelease (accelerometer_semaphore);
-  /* Clear the EXTI line 0 pending bit */
+  /* Clear the EXTI line 1 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line1);
 }
 
@@ -268,6 +268,11 @@ void accelerometer_init(void)
 
 }
 
+/**
+  * @brief  start interrrupt triggering to get acceleration measurement
+  * @param  None
+  * @retval None
+  */
 void accelerometer_start(void)
 {
   uint8_t buffer[6];
@@ -313,7 +318,7 @@ float getRoll(void)
 
 
 /**
-  * @brief  measure the tempeature when the semaohore is ready.
+  * @brief  measure the angles when the semaphore is ready.
   * @param  None
   * @retval None
   */
@@ -324,46 +329,64 @@ void accelerometer_Thread(void const * argument)
   
   while (1)
   {
+		//Wait for semaphore to be released by interrupt
     osSemaphoreWait (accelerometer_semaphore, osWaitForever);   
+		//Get measurement and calculate angles
     measure_accleration();
     rollAngle = getRoll();
     pitchAngle = getPitch();
+		//Filter the angles
     filter_add((int16_t) round(rollAngle * 100), &accelerometer_roll_filter_struct);
     filter_add((int16_t) round(pitchAngle * 100), &accelerometer_pitch_filter_struct);
     roll_degree_MA = filter_average(&accelerometer_roll_filter_struct) / 100.0;
     pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct) / 100.0;
+		//Update servo motor
     servo_motor_update(roll_degree_MA);
     //printf("%f, %f\n",roll_degree_MA,pitch_degree_MA);
   }
 }
 
+/**
+  * @brief  Get the filtered roll angle from filter struct
+  * @param  None
+  * @retval None
+  */
 float getFilteredRollAngle(void)
 {
   return  roll_degree_MA;
 }
 
+/**
+  * @brief  Get the filtered pitch angle from filter struct
+  * @param  None
+  * @retval None
+  */
 float getFilteredPitchAngle(void)
 {
   return pitch_degree_MA; 
 }
 
 /**
-  * @brief  create a thread for temperature measurement
+  * @brief  create a thread for acceleration measurement
   * @param  None
-  * @retval None
+  * @retval The thread ID for accelerometer
   */
 osThreadId  accelerometer_Thread_Create(void)
 {
+	//Initialize the peripherals for the accelerometer
   accelerometer_init();
+	//Initialize the peripherals for the servo moter
   servo_motor_init();
+	//Initialize the filters
   filter_init(&accelerometer_roll_filter_struct, 30);
   filter_init(&accelerometer_pitch_filter_struct,30);
+	//Initialize the mutex for the filters
   accelerometer_roll_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerRollFilterMutex));
   accelerometer_pitch_filter_struct.mutexId = osMutexCreate(osMutex (accelerometerPitchFilterMutex));
-  
+  //create the semaphore
   accelerometer_semaphore = osSemaphoreCreate(osSemaphore(accelerometer_semaphore), 1);
   
-  //start temperature thread
+  //start accelerometer thread
   accelerometer_thread_id = osThreadCreate(osThread(accelerometer_Thread), NULL);
   return accelerometer_thread_id;
 }

@@ -13,7 +13,7 @@
 #include "stm32f4xx.h"
 
 /**
-  * @brief  Initialize GPIOD pin0 as PWG output (TIM4 CH3)
+  * @brief  Initialize GPIOD pin15 as PWG output (TIM4 CH4)
   * @param  None
   * @retval None
   */

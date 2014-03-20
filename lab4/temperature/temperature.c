@@ -224,10 +224,14 @@ void temperature_Thread(void const * argument)
   
   while (1)
   {
+		//Wait for semaphore to be released by timer interrupt
     osSemaphoreWait (tempeature_semaphore, osWaitForever);
+		//Measure temperature
     temp = temperature_MeasureValue();
+		//Filter measurement
     filter_add((int16_t) round(temp * 100), &temperature_filter_struct);
     sample = filter_average(&temperature_filter_struct);
+		//Update PWM alarm
     pwm_alarm_update(sample / 100);
     //printf("%f\n", sample / 100.0);
   }
@@ -242,7 +246,7 @@ float get_filterd_tempeature(void)
 /**
   * @brief  create a thread for temperature measurement
   * @param  None
-  * @retval None
+  * @retval The thread ID for temperature
   */
 osThreadId  temperature_Thread_Create(void)
 {
