@@ -242,11 +242,11 @@ void lcd_thread(void const * argument)
     osSemaphoreWait (lcd_semaphore, osWaitForever);
     if (getThreadToRun() == 1)
     {
-      //Temperture mode
+      //Accelerometer mode
       lcd_set_display_angles(getFilteredRollAngle(),getFilteredPitchAngle());
     } else
     {
-      //Accelerometer mode
+      //Temperture mode
       lcd_set_display_temperaure(get_filterd_tempeature());
     }
     //clear the curent content in LCD
