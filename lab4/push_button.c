@@ -13,10 +13,11 @@
 #include "stm32f4xx_syscfg.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_tim.h"
+#include "cmsis_os.h"
 
 /* flag used to indicate accelerastion sensor interrupt */
 volatile uint_fast16_t thread_ready;
-
+extern osSemaphoreId lcd_semaphore;
 
 uint_fast16_t getThreadToRun(void)
 {
@@ -81,8 +82,9 @@ void button_init(void)
  */
 void EXTI0_IRQHandler(void)
 {
-    if(EXTI_GetITStatus(EXTI_Line0) == RESET) return;
-    thread_ready = 1 - thread_ready; 
-    /* Clear the EXTI line 0 pending bit */
-    EXTI_ClearITPendingBit(EXTI_Line0);
+  if(EXTI_GetITStatus(EXTI_Line0) == RESET) return;
+  thread_ready = 1 - thread_ready; 
+  osSemaphoreRelease (lcd_semaphore);
+  /* Clear the EXTI line 0 pending bit */
+  EXTI_ClearITPendingBit(EXTI_Line0);
 }

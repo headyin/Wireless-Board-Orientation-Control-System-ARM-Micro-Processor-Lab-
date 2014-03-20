@@ -7,6 +7,8 @@
 #include "accelerometer/accelerometer.h"
 #include "temperature/temperature.h"
 
+
+//buffers of display content
 char line1[LINE_LENGTH];
 char line2[LINE_LENGTH];
 
@@ -33,6 +35,11 @@ void TIM2_IRQHandler(void)
 	}
 }
 
+/**
+ * @brief write data to the LCD trough the 8 data pins
+ * @param uint8_t data
+ * @retval None
+ */
 void lcd_set_data(uint8_t data)
 {
   uint16_t pins = 0x0000;
@@ -48,6 +55,11 @@ void lcd_set_data(uint8_t data)
   GPIO_ResetBits(LCD_GPIO, LCD_RW);
 }
 
+/**
+ * @brief display a character on the LCD display
+ * @param uint8_t character
+ * @retval None
+ */
 void lcd_send_character(uint8_t character)
 {
   GPIO_ResetBits(LCD_GPIO, LCD_PINS);
@@ -59,6 +71,11 @@ void lcd_send_character(uint8_t character)
   osDelay(1);
 }
 
+/**
+ * @brief send a command to LCD display
+ * @param uint8_t command
+ * @retval None
+ */
 void lcd_send_command(uint8_t command)
 {
   GPIO_ResetBits(LCD_GPIO, LCD_PINS);
@@ -70,16 +87,34 @@ void lcd_send_command(uint8_t command)
   osDelay(2);
 }
 
+/**
+ * @brief send a clear command to LCD display
+ * @param None
+ * @retval None
+ */
 void lcd_clear_command(void)
 {
   lcd_send_command(0x01);
 }
 
+/**
+ * @brief display a character on LCD display
+ * @param char
+ * @retval None
+ */
 void lcd_write_char(char c)
 {
   lcd_send_character(c);
 }
 
+/**
+ * @brief Initialize the LCD display
+ *        enables LCD using 2-line display and 8-bit interface
+ *        cursor auto-right-move without showing
+          Clear the LCD screen
+ * @param None
+ * @retval None
+ */
 void lcd_display_init(void)
 {
   lcd_gpio_init();
@@ -92,6 +127,11 @@ void lcd_display_init(void)
   lcd_send_command(0x01);
 }
 
+/**
+ * @brief Initialize the grio used for LCD
+ * @param None
+ * @retval None
+ */
 void lcd_gpio_init(void)
 {
   GPIO_InitTypeDef  lcd_GPIO_InitStructure;
@@ -111,6 +151,11 @@ void lcd_gpio_init(void)
   GPIO_Init(LCD_GPIO, &lcd_GPIO_InitStructure);
 }
 
+/**
+ * @brief Initialize the TIM used for LCD
+ * @param None
+ * @retval None
+ */
 void lcd_timer_init(void)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -157,25 +202,38 @@ void lcd_timer_init(void)
 
 }
 
+/**
+ * @brief fill the display buffer with the angle info
+ * @param float roll angle
+ * @param float pitch angle
+ * @retval None
+ */
 void lcd_set_display_angles(float roll, float pitch)
 {
-  lcd_clear_command();
   memset(line1,0,strlen(line1));
   memset(line2,0,strlen(line2));
   snprintf(line1, LINE_LENGTH + 1, "Roll  : %.1f%c", roll, 0xdf);
   snprintf(line2, LINE_LENGTH + 1, "Pitch : %.1f%c", pitch, 0xdf);
 }
 
+/**
+ * @brief fill the display buffer with the temperaure info
+ * @param float temperature
+ * @retval None
+ */
 void lcd_set_display_temperaure(float temp)
 {
-  lcd_clear_command();
   memset(line1,0,strlen(line1));
   memset(line2,0,strlen(line2));
   snprintf(line1, LINE_LENGTH + 1, "Temperature:");
   snprintf(line2, LINE_LENGTH + 1, "    %.1f%cC", temp, 0xdf);
 }
 
-
+/**
+ * @brief Thread function of LCD 
+ * @param Not used
+ * @retval None
+ */
 void lcd_thread(void const * argument)
 {
   int i;
@@ -184,25 +242,38 @@ void lcd_thread(void const * argument)
     osSemaphoreWait (lcd_semaphore, osWaitForever);
     if (getThreadToRun() == 1)
     {
+      //Temperture mode
       lcd_set_display_angles(getFilteredRollAngle(),getFilteredPitchAngle());
     } else
     {
+      //Accelerometer mode
       lcd_set_display_temperaure(get_filterd_tempeature());
     }
+    //clear the curent content in LCD
+    lcd_clear_command();
+    //print the first line
     for (i = 0; i < strlen(line1); i++)
     {
       lcd_write_char(line1[i]);
     }
+    //move to second line
     for (i = 0; i < VIRTUAL_LINE_LENGTH - strlen(line1); i++)
     {
       lcd_write_char(' ');
     }
+    //print the second line
     for (i = 0; i < strlen(line2); i++)
     {
       lcd_write_char(line2[i]);
     }
   }
 }
+
+/**
+ * @brief Create a new thread for LCD
+ * @param None
+ * @retval osThreadId the created tread id
+ */
 osThreadId  lcd_thread_create(void)
 {
   lcd_display_init();
@@ -213,6 +284,11 @@ osThreadId  lcd_thread_create(void)
   return lcd_thread_id;
 }
 
+/**
+ * @brief Start the timer used to controll the lcd thread
+ * @param None
+ * @retval None
+ */
 void lcd_start(void)
 {
   TIM_Cmd(TIM2, ENABLE);

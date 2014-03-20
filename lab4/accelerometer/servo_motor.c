@@ -6,11 +6,10 @@
   * @date    26-February-2014
   * @brief   This file provides functions to control servo motors
   */
-
+#include "servo_motor.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_tim.h"
-#include "servo_motor.h"
 #include <math.h>
 
 #define PULSE_DEGREE_SLOP -3.37f
@@ -33,7 +32,7 @@ void servo_motor_gpio_init(void)
   /* GPIOD clock enable*/
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
   
-  /* GPIOD Configuration: TIM4 CH3 (PD14) */
+  /* GPIOD Configuration: TIM4 CH4   (PD15) */
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
   /* GPIO Alternate function Mode */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
