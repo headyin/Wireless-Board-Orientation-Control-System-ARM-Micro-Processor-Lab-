@@ -176,7 +176,7 @@ static void CC2500_LowLevel_Init(void)
   SPI_InitTypeDef  SPI_InitStructure;
 
   /* Enable the SPI periph */
-  RCC_APB2PeriphClockCmd(CC2500_SPI_CLK, ENABLE);
+  RCC_APB1PeriphClockCmd(CC2500_SPI_CLK, ENABLE);
   
   /* Enable SCK, MOSI, MISO, CS and INT GPIO clocks for CC2500*/
   RCC_AHB1PeriphClockCmd(CC2500_SPI_SCK_GPIO_CLK | CC2500_SPI_MOSI_GPIO_CLK |
@@ -211,7 +211,11 @@ static void CC2500_LowLevel_Init(void)
   SPI_InitStructure.SPI_CPOL = SPI_CPOL_Low; //SCK pin: low-level idle state
   SPI_InitStructure.SPI_CPHA = SPI_CPHA_1Edge; //first edge (rising) is the MSBit capture strobe
   SPI_InitStructure.SPI_NSS = SPI_NSS_Soft; //not use here
-  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; //50MHz / 8  = 6.25MHz
+  /* 
+   pclk1 = hclk / 4 = 168MHz / 4 = 42MHz
+   baud rate = pclk 1 / 8 = 5.25 MHZ
+   */
+  SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8;
   SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
   SPI_InitStructure.SPI_CRCPolynomial = 7; //reset value
   SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
