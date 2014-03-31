@@ -1,6 +1,7 @@
 #include "smartRF_CC2500.h"
 #include "stm32f4xx.h"
 
+
 /* Read mode: the R/W bit set to 1 */
 #define READ_MODE              ((uint8_t)0x80) 
 /* Burst mode: the burst bit set to 1 */ 
@@ -14,7 +15,6 @@ __IO uint32_t  CC2500Timeout = CC2500_FLAG_TIMEOUT;
 static void CC2500_LowLevel_Init(void);
 static uint8_t CC2500_Chip_Select(void);
 static uint8_t CC2500_SendByte(uint8_t byte);
-
 
 /**
   * @brief  Set CC2500 Initialization.
@@ -34,6 +34,47 @@ void CC2500_Init(void)
 }
 
 /**
+  * @brief  Issue chip reset command.
+  * @param  None
+  * @retval uint8_t : 0(Ok) or CC2500_TIMEOUT_ERROR
+  */
+uint8_t CC2500_SRES_CMD(void)
+{
+  CC2500Timeout = CC2500_FLAG_TIMEOUT;
+	CC2500_WriteCommand(CC2500_COMMAND_SRES, 0);
+	while (GPIO_ReadInputDataBit(CC2500_SPI_MISO_GPIO_PORT, CC2500_SPI_MISO_PIN)
+         == (uint8_t) Bit_SET)
+  {
+    if((CC2500Timeout--) == 0)
+		{
+			return CC2500_TIMEOUT_UserCallback();
+		}
+  }
+	return 0;
+}
+
+/**
+  * @brief  Command: calibrate frequency synthesizer and turn it off.
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_SCAL_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_SCAL, ReadWriteFIFOFlag);
+}
+
+/**
+  * @brief  Enable RX.
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_SRX_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_SRX, ReadWriteFIFOFlag);
+}
+
+
+/**
   * @brief  Reads a block of data from the CC2500 registers.
   * @param  pBuffer : pointer to the buffer that receives the data read from the CC2500.
   * @param  ReadAddr : CC2500's internal address to read from.
@@ -42,15 +83,16 @@ void CC2500_Init(void)
   */
 void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
+	ReadAddr = (uint8_t) (ReadAddr & CC2500_ADDRESS_MASK);
   //set the first bit of header to 1 (read)
-  //if multiple bytes to read, set the secodn bit of header to 1 (burst)
-  if(NumByteToRead > 0x01)
+  //if multiple bytes to read or read status registers, set the second bit of header to 1 (burst)
+  if((NumByteToRead > 0x01) || ((ReadAddr >= 0x30) && (ReadAddr <=0x3D)))
   {
-    ReadAddr = (uint8_t) ((ReadAddr & CC2500_ADDRESS_MASK) | (READ_MODE | BURST_MODE));
+    ReadAddr |= (uint8_t) (READ_MODE | BURST_MODE);
   }
   else
   {
-    ReadAddr = (uint8_t) ((ReadAddr & CC2500_ADDRESS_MASK) | (READ_MODE));
+    ReadAddr |= (uint8_t) READ_MODE;
   }
   /* Set chip select Low at the start of the transmission */
   if (CC2500_Chip_Select() == CC2500_TIMEOUT_ERROR)
@@ -117,6 +159,42 @@ void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteT
   
   /* Set chip select High at the end of the transmission */ 
   CC2500_CS_HIGH();
+}
+
+/**
+  * @brief  Writes one CC2500 Command.
+  * @param  WriteCommand : CC2500 Command.
+  * @param  ReadWriteFIFOFlag : 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t status
+  */
+uint8_t CC2500_WriteCommand(uint8_t WriteCommand, uint8_t ReadWriteFIFOFlag)
+{
+	uint8_t status;
+	WriteCommand &= (uint8_t) CC2500_ADDRESS_MASK;
+	if ((WriteCommand < 0x30) || (WriteCommand > 0x3D))
+	{
+		return CC2500_STATUS_ERROR;
+  }
+	if (ReadWriteFIFOFlag)
+	{
+		WriteCommand |= (uint8_t) 0x80;
+	}
+
+  /* Set chip select Low at the start of the transmission */
+  if (CC2500_Chip_Select() == CC2500_TIMEOUT_ERROR)
+  {
+    //terminate the transaction and return
+    CC2500_CS_HIGH();
+    return CC2500_STATUS_ERROR;
+  }
+  
+  /* Send the Address of the indexed register */
+  status = CC2500_SendByte(WriteCommand);
+  
+  /* Set chip select High at the end of the transmission */ 
+  CC2500_CS_HIGH();
+	
+	return status;
 }
 
 /**

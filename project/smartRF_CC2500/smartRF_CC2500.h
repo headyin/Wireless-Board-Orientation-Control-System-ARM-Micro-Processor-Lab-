@@ -49,6 +49,12 @@
    conditions (interrupts routines ...). */   
 #define CC2500_FLAG_TIMEOUT         ((uint32_t)0x1000)
 #define CC2500_TIMEOUT_ERROR        ((uint8_t)0x01)
+#define CC2500_STATUS_ERROR         ((uint8_t)0x80)
+
+
+#define CC2500_COMMAND_SRES         ((uint8_t)0x30)
+#define CC2500_COMMAND_SCAL         ((uint8_t)0x33)
+#define CC2500_COMMAND_SRX          ((uint8_t)0x34)
 
 #define SMARTRF_RADIO_CC2500
 #define SMARTRF_SETTING_FSCTRL1   0x0C//0x12 //Frequency offset = 457kHz
@@ -88,8 +94,13 @@
 #define SMARTRF_SETTING_PKTLEN 0x0A // Packet Length of 10bytes (0xFF)
 
 uint8_t CC2500_TIMEOUT_UserCallback(void);
+void CC2500_Init(void);
 void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
 void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
-void CC2500_Init(void);
+uint8_t CC2500_WriteCommand(uint8_t WriteCommand, uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_SRES_CMD(void);
+uint8_t CC2500_SCAL_CMD(uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_SRX_CMD(uint8_t ReadWriteFIFOFlag);
+
 
 #endif 
