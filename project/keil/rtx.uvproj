@@ -2430,6 +2430,16 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>debug_printf</GroupName>
+          <Files>
+            <File>
+              <FileName>fputc_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fputc_debug.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>

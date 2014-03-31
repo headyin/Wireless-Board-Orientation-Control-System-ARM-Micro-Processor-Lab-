@@ -1,6 +1,8 @@
 #ifndef SMARTRF_CC2500_H
 #define SMARTRF_CC2500_H
 
+#include "stdint.h"
+
 /**
   * @brief  CC2500 SPI Interface pins
   */
@@ -36,6 +38,17 @@
 #define CC2500_SPI_INT_EXTI_PORT_SOURCE EXTI_PortSourceGPIOC
 #define CC2500_SPI_INT_EXTI_PIN_SOURCE  EXTI_PinSource4
 #define CC2500_SPI_INT_EXTI_IRQn        EXTI4_IRQn 
+
+#define CC2500_CS_LOW()       GPIO_ResetBits(CC2500_SPI_CS_GPIO_PORT, CC2500_SPI_CS_PIN)
+#define CC2500_CS_HIGH()      GPIO_SetBits(CC2500_SPI_CS_GPIO_PORT, CC2500_SPI_CS_PIN)
+
+/* Maximum Timeout values for flags waiting loops. These timeouts are not based
+   on accurate values, they just guarantee that the application will not remain
+   stuck if the SPI communication is corrupted.
+   You may modify these timeout values depending on CPU frequency and application
+   conditions (interrupts routines ...). */   
+#define CC2500_FLAG_TIMEOUT         ((uint32_t)0x1000)
+#define CC2500_TIMEOUT_ERROR        ((uint8_t)0x01)
 
 #define SMARTRF_RADIO_CC2500
 #define SMARTRF_SETTING_FSCTRL1   0x0C//0x12 //Frequency offset = 457kHz
@@ -73,5 +86,9 @@
 #define SMARTRF_SETTING_PKTCTRL0 0x05 //0x05 // Fixed Packet Length (0x05)
 #define SMARTRF_SETTING_ADDR 0x00 // Global Broadcast Address
 #define SMARTRF_SETTING_PKTLEN 0x0A // Packet Length of 10bytes (0xFF)
+
+uint8_t CC2500_TIMEOUT_UserCallback(void);
+void LIS302DL_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
+void LIS302DL_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
 
 #endif 
