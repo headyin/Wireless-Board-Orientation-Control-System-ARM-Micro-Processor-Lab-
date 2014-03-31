@@ -22,7 +22,7 @@ static uint8_t CC2500_SendByte(uint8_t byte);
   *         that contains the configuration setting for the LIS302DL.
   * @retval None
   */
-void LIS302DL_Init()
+void CC2500_Init(void)
 {  
   /* Configure the low level interface ---------------------------------------*/
   CC2500_LowLevel_Init();
@@ -40,7 +40,7 @@ void LIS302DL_Init()
   * @param  NumByteToRead : number of bytes to read from the CC2500 registers.
   * @retval None
   */
-void LIS302DL_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
+void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {
   //set the first bit of header to 1 (read)
   //if multiple bytes to read, set the secodn bit of header to 1 (burst)
@@ -83,7 +83,7 @@ void LIS302DL_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteT
   * @param  NumByteToWrite: Number of bytes to write.
   * @retval None
   */
-void LIS302DL_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
+void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
   //set the first bit of header to 1 (read)
   //if multiple bytes to read, set the secodn bit of header to 1 (burst)

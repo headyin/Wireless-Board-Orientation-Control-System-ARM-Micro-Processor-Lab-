@@ -88,7 +88,8 @@
 #define SMARTRF_SETTING_PKTLEN 0x0A // Packet Length of 10bytes (0xFF)
 
 uint8_t CC2500_TIMEOUT_UserCallback(void);
-void LIS302DL_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
-void LIS302DL_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
+void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
+void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
+void CC2500_Init(void);
 
 #endif 
