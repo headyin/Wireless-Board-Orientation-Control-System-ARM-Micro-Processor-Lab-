@@ -16,7 +16,7 @@ int main (void)
 	uint8_t writebuffer[3] = {66, 77, 88};
   uint8_t readbuffer[3] = {0, 0, 0};
   uint8_t status;
-	CC2500_Init();
+	CC2500_Default_Init();
 	while (1)
 	{
 		osDelay(1000);

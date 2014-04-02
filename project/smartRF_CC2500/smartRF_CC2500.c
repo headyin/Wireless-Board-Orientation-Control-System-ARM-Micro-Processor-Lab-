@@ -23,15 +23,14 @@ static uint8_t CC2500_SendByte(uint8_t byte);
   * @retval None
   */
 void CC2500_Default_Init(void)
-{  
+{
+	uint8_t buffer[0x2f];
   /* Configure the low level interface ---------------------------------------*/
   CC2500_LowLevel_Init();
   
   /* Configure*/
   CC2500_SRES_CMD();
-
-  
-  /* Write value to CC2500 CTRL_REG1 regsister */
+	
 }
 
 /**
