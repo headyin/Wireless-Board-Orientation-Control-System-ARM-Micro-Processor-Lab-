@@ -3,8 +3,15 @@ obj/
 
 # List files
 list/
+lst/
 
 # Executables
 *.hex
 
 *.dep
+lab?/*.uvgui*
+lab?/keil/*.uvgui*
+lab4/keil/output.map
+
+project/keil/*.uvgui*
+project/keil/output.map
