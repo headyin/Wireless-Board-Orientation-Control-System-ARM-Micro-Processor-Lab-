@@ -22,7 +22,7 @@ static uint8_t CC2500_SendByte(uint8_t byte);
   *         that contains the configuration setting for the LIS302DL.
   * @retval None
   */
-void CC2500_Init(void)
+void CC2500_Default_Init(void)
 {  
   /* Configure the low level interface ---------------------------------------*/
   CC2500_LowLevel_Init();
@@ -158,7 +158,7 @@ void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToR
   */
 void CC2500_Write_TXFIFO(uint8_t* pbuffer, uint16_t NumByteToWrite)
 {
-  CC2500_WriteRegister(pbuffer, CC2500_FIFI_ADDR, NumByteToWrite);
+  CC2500_WriteRegister(pbuffer, CC2500_FIFO_ADDR, NumByteToWrite);
 }
 
 /**
@@ -169,7 +169,7 @@ void CC2500_Write_TXFIFO(uint8_t* pbuffer, uint16_t NumByteToWrite)
   */
 void CC2500_Read_RXFIFO(uint8_t* pBuffer, uint16_t NumByteToRead)
 {
-  CC2500_ReadRegister(pBuffer, CC2500_FIFI_ADDR, NumByteToRead);
+  CC2500_ReadRegister(pBuffer, CC2500_FIFO_ADDR, NumByteToRead);
 }
 
 

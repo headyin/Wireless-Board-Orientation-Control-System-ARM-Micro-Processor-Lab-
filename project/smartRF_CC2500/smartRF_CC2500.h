@@ -60,14 +60,64 @@
 #define CC2500_COMMAND_SNOP         ((uint8_t)0x3D)
 
 
-#define CC2500_FIFI_ADDR            ((uint8_t)0x3F)
+#define CC2500_FIFO_ADDR            ((uint8_t)0x3F)
+
+#define CC2500_REG_IOCFG2_ADDR      ((uint8_t)0x00)
+#define CC2500_REG_IOCFG1_ADDR      ((uint8_t)0x01)
+#define CC2500_REG_IOCFG0_ADDR      ((uint8_t)0x02)
+#define CC2500_REG_FIFOTHR_ADDR     ((uint8_t)0x03)
+#define CC2500_REG_SYNC1_ADDR       ((uint8_t)0x04)
+#define CC2500_REG_SYNC0_ADDR       ((uint8_t)0x05)
+#define CC2500_REG_PKTLEN_ADDR      ((uint8_t)0x06)
+#define CC2500_REG_PKTCTRL1_ADDR    ((uint8_t)0x07)
+#define CC2500_REG_PKTCTRL0_ADDR    ((uint8_t)0x08)
+#define CC2500_REG_ADDR_ADDR        ((uint8_t)0x09)
+#define CC2500_REG_CHANNR_ADDR      ((uint8_t)0x0A)
+#define CC2500_REG_FSCTRL1_ADDR     ((uint8_t)0x0B)
+#define CC2500_REG_FSCTRL0_ADDR     ((uint8_t)0x0C)
+#define CC2500_REG_FREQ2_ADDR       ((uint8_t)0x0D)
+#define CC2500_REG_FREQ1_ADDR       ((uint8_t)0x0E)
+#define CC2500_REG_FREQ0_ADDR       ((uint8_t)0x0F)
+#define CC2500_REG_MDMCFG4_ADDR     ((uint8_t)0x10)
+#define CC2500_REG_MDMCFG3_ADDR     ((uint8_t)0x11)
+#define CC2500_REG_MDMCFG2_ADDR     ((uint8_t)0x12)
+#define CC2500_REG_MDMCFG1_ADDR     ((uint8_t)0x13)
+#define CC2500_REG_MDMCFG0_ADDR     ((uint8_t)0x14)
+#define CC2500_REG_DEVIATN_ADDR     ((uint8_t)0x15)
+#define CC2500_REG_MCSM2_ADDR       ((uint8_t)0x16)
+#define CC2500_REG_MCSM1_ADDR       ((uint8_t)0x17)
+#define CC2500_REG_MCSM0_ADDR       ((uint8_t)0x18)
+#define CC2500_REG_FOCCFG_ADDR      ((uint8_t)0x19)
+#define CC2500_REG_BSCFG_ADDR       ((uint8_t)0x1A)
+#define CC2500_REG_AGCTRL2_ADDR     ((uint8_t)0x1B)
+#define CC2500_REG_AGCTRL1_ADDR     ((uint8_t)0x1C)
+#define CC2500_REG_AGCTRL0_ADDR     ((uint8_t)0x1D)
+#define CC2500_REG_WOREVT1_ADDR     ((uint8_t)0x1E)
+#define CC2500_REG_WOREVT0_ADDR     ((uint8_t)0x1F)
+#define CC2500_REG_WORCTRL_ADDR     ((uint8_t)0x20)
+#define CC2500_REG_FREND1_ADDR      ((uint8_t)0x21)
+#define CC2500_REG_FREND0_ADDR      ((uint8_t)0x22)
+#define CC2500_REG_FSCAL3_ADDR      ((uint8_t)0x23)
+#define CC2500_REG_FSCAL2_ADDR      ((uint8_t)0x24)
+#define CC2500_REG_FSCAL1_ADDR      ((uint8_t)0x25)
+#define CC2500_REG_FSCAL0_ADDR      ((uint8_t)0x26)
+#define CC2500_REG_RCCTRL1_ADDR     ((uint8_t)0x27)
+#define CC2500_REG_RCCTRL0_ADDR     ((uint8_t)0x28)
+#define CC2500_REG_FSTEST_ADDR      ((uint8_t)0x29)
+#define CC2500_REG_PTEST_ADDR       ((uint8_t)0x2A)
+#define CC2500_REG_AGCTEST_ADDR     ((uint8_t)0x2B)
+#define CC2500_REG_TEST2_ADDR       ((uint8_t)0x2C)
+#define CC2500_REG_TEST1_ADDR       ((uint8_t)0x2D)
+#define CC2500_REG_TEST0_ADDR       ((uint8_t)0x2E)
+
+
 
 #define SMARTRF_RADIO_CC2500
 #define SMARTRF_SETTING_FSCTRL1   0x0C//0x12 //Frequency offset = 457kHz
 #define SMARTRF_SETTING_FSCTRL0    0x00
-#define SMARTRF_SETTING_FREQ2     0x5D // Carrier Frequency is 2.433GHz
-#define SMARTRF_SETTING_FREQ1    0x93
-#define SMARTRF_SETTING_FREQ0     0xB1
+#define SMARTRF_SETTING_FREQ2     0x5D // Carrier Frequency is 2.433GHz + 6*8KHz
+#define SMARTRF_SETTING_FREQ1    0x94 //0x93  
+#define SMARTRF_SETTING_FREQ0     0x2A //0xB1
 #define SMARTRF_SETTING_MDMCFG4 0x0E //0x2D // BW of channel = 541.666kHz
 #define SMARTRF_SETTING_MDMCFG3 0x3B // Baud Rate = 125kb
 #define SMARTRF_SETTING_MDMCFG2   0x73 //before demodulator, MSK modulation, 16/16 sync word bits detected
@@ -100,7 +150,7 @@
 #define SMARTRF_SETTING_PKTLEN 0x0A // Packet Length of 10bytes (0xFF)
 
 uint8_t CC2500_TIMEOUT_UserCallback(void);
-void CC2500_Init(void);
+void CC2500_Default_Init(void);
 void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
 void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
 uint8_t CC2500_WriteCommand(uint8_t WriteCommand, uint8_t ReadWriteFIFOFlag);
