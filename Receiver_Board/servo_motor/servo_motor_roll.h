@@ -27,5 +27,8 @@ void servo_motor_init_roll(void);
   */
 void servo_motor_update_roll(float rollAngle);
 
-
+void servo_motor_update_roll(float rollAngle);
+void servo_motor_roll_Thread(void const * argument);
+void servo_motor_roll_Start(void);
+osThreadId  servo_motor_roll_Thread_Create(void);
 #endif

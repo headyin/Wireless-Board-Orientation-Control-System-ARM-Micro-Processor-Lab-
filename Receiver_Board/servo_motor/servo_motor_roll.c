@@ -1,54 +1,52 @@
 /**
   ******************************************************************************
-  * @file    servo_motor_pitch.c
+  * @file    servo_motor_roll.c
   * @author  Xinshang Yin, Chandani Patel
   * @version V1.0.0
   * @date    26-February-2014
   * @brief   This file provides functions to control servo motors
   */
-#include "servo_motor_pitch.h"
+#include "servo_motor_roll.h"
 #include "stm32f4xx_gpio.h"
 #include "stm32f4xx_rcc.h"
 #include "stm32f4xx_tim.h"
-#include "cmsis_os.h"
-#include "stdint.h"
-#include "stm32f4xx.h"
 #include <math.h>
 
 #define PULSE_DEGREE_SLOP -3.37f
 #define NIGHTY_DEGREE_PULSE 450 + 15
 
 //semaphore
-osSemaphoreId servo_motor_pitch_semaphore;
+osSemaphoreId servo_motor_roll_semaphore;
 
 //definations for timer, semaphore and thread
-osSemaphoreDef(servo_motor_pitch_semaphore); 
-osThreadDef(servo_motor_pitch_Thread, osPriorityNormal, 1, 0);
-osThreadId servo_motor_pitch_thread_id;
+osSemaphoreDef(servo_motor_roll_semaphore); 
+osThreadDef(servo_motor_roll_Thread, osPriorityNormal, 1, 0);
+osThreadId servo_motor_roll_thread_id;
 
-TIM_OCInitTypeDef  TIM_OCInitStructure_;
+TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 /** 
   * @brief  This function handles TIM3 global interrupt request. 
   * @param  None 
   * @retval None 
   */
-void TIM4_IRQHandler(void)
+void TIM4_IRQHandler_Roll(void)
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_CC4) != RESET)
+	if (TIM_GetITStatus(TIM4, TIM_IT_CC3) != RESET)
   {
     //add tempeature_semaphore by 1, so the temperature thead can measure the tempeature once
-    osSemaphoreRelease (servo_motor_pitch_semaphore);
-    TIM_ClearITPendingBit(TIM4, TIM_IT_CC4); 
+    osSemaphoreRelease (servo_motor_roll_semaphore);
+    TIM_ClearITPendingBit(TIM4, TIM_IT_CC3); 
 	}
 }
+
 
 /**
   * @brief  Initialize GPIOD pin14 used for PWM output
   * @param  None
   * @retval None
   */
-void servo_motor_gpio_init_pitch(void)
+void servo_motor_gpio_init_roll(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
   /* TIM4 clock enable */
@@ -57,8 +55,8 @@ void servo_motor_gpio_init_pitch(void)
   /* GPIOD clock enable*/
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
   
-  /* GPIOD Configuration: TIM4 CH4   (PD15) */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+  /* GPIOD Configuration: TIM4 CH4   (PD14) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
   /* GPIO Alternate function Mode */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	/* High speed */
@@ -70,7 +68,7 @@ void servo_motor_gpio_init_pitch(void)
   GPIO_Init(GPIOD, &GPIO_InitStructure);
   
   /* Connect TIM4 pins to AF2 */  
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource15, GPIO_AF_TIM4);
+  GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
 }
 
 /**
@@ -78,7 +76,7 @@ void servo_motor_gpio_init_pitch(void)
   * @param  None
   * @retval None
   */
-void servo_motor_tim_init_pitch(void)
+void servo_motor_tim_init_roll(void)
 {
   /*
    * TIM4 counter clock frequency = 315000
@@ -88,17 +86,17 @@ void servo_motor_tim_init_pitch(void)
    */
   //TIM4 base is already initialized in pwm_alarm 
 	/* idenpendent PWM mode 1*/
-	TIM_OCInitStructure_.TIM_OCMode = TIM_OCMode_PWM1;
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	/* output compare state enabled, ebable the comparasion between counter and puls value*/
-  TIM_OCInitStructure_.TIM_OutputState = TIM_OutputState_Enable;
+  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	/* Output polarity high, when counter < puls value, set the output polarity high*/
-  TIM_OCInitStructure_.TIM_OCPolarity = TIM_OCPolarity_High;
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	/* Set CCR3 to 0 degree at initial*/
-	TIM_OCInitStructure_.TIM_Pulse = NIGHTY_DEGREE_PULSE;
-	TIM_OC4Init(TIM4, &TIM_OCInitStructure_);
+	TIM_OCInitStructure.TIM_Pulse = NIGHTY_DEGREE_PULSE;
+	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
 
 	/* Enable the prereload of CCR3 register, which controls the duty circly of PWM */
-	TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);
+	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
 	/* Enable the prereload of TIM4_ARR register, which defermines the frequency of PWM */
 	TIM_ARRPreloadConfig(TIM4, ENABLE);
 	/* TIM4 enable counter */
@@ -110,10 +108,10 @@ void servo_motor_tim_init_pitch(void)
   * @param  None
   * @retval None
   */
-void servo_motor_init_pitch(void)
+void servo_motor_init_roll(void)
 {
-	servo_motor_gpio_init_pitch();
-	servo_motor_tim_init_pitch();
+	servo_motor_gpio_init_roll();
+	servo_motor_tim_init_roll();
 }
 
 /**
@@ -121,35 +119,38 @@ void servo_motor_init_pitch(void)
   * @param  int16_t rollAngle, the roll angle of the chip range from 0 to 180
   * @retval None
   */
-void servo_motor_update_pitch(float pitchAngle)
+void servo_motor_update_roll(float rollAngle)
 {
-  uint16_t pulse = NIGHTY_DEGREE_PULSE + round((pitchAngle) * PULSE_DEGREE_SLOP);
-	TIM_OCInitStructure_.TIM_Pulse = pulse;
-	TIM_OC4Init(TIM4, &TIM_OCInitStructure_);
+  uint16_t pulse = NIGHTY_DEGREE_PULSE + round((rollAngle) * PULSE_DEGREE_SLOP);
+	TIM_OCInitStructure.TIM_Pulse = pulse;
+	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
 
 }
-void servo_motor_pitch_Start(void)
+
+void servo_motor_roll_Start(void)
 {
   //start timer
   /* Enable TIM4 */
 	TIM_Cmd(TIM4, ENABLE);
 }
+
 /**
   * @brief  measure the tempeature when the semaohore is ready.
   * @param  None
   * @retval None
   */
-void servo_motor_pitch_Thread(void const * argument)
+void servo_motor_roll_Thread(void const * argument)
 {
   
   while (1)
   {
 		//Wait for semaphore to be released by timer interrupt
-    osSemaphoreWait (servo_motor_pitch_semaphore, osWaitForever);
+    osSemaphoreWait (servo_motor_roll_semaphore, osWaitForever);
 
-    float pitchAngle;
+    float rollAngle =45.0;
+		
     
-    servo_motor_update_pitch(45);
+    servo_motor_update_roll(rollAngle);
   }
 }
 
@@ -158,15 +159,15 @@ void servo_motor_pitch_Thread(void const * argument)
   * @param  None
   * @retval The thread ID for temperature
   */
-osThreadId  servo_motor_pitch_Thread_Create(void)
+osThreadId  servo_motor_roll_Thread_Create(void)
 {
   //initialize ADC
-	servo_motor_init_pitch();
+	servo_motor_init_roll();
 
   //create semaphore
-  servo_motor_pitch_semaphore = osSemaphoreCreate(osSemaphore(servo_motor_pitch_semaphore), 1);
+  servo_motor_roll_semaphore = osSemaphoreCreate(osSemaphore(servo_motor_roll_semaphore), 1);
 
   //create temperature thread
-  servo_motor_pitch_thread_id = osThreadCreate(osThread(servo_motor_pitch_Thread), NULL);
-  return servo_motor_pitch_thread_id;
+  servo_motor_roll_thread_id = osThreadCreate(osThread(servo_motor_roll_Thread), NULL);
+  return servo_motor_roll_thread_id;
 }
