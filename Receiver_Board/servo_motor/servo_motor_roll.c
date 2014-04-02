@@ -30,33 +30,33 @@ TIM_OCInitTypeDef  TIM_OCInitStructure;
   * @param  None 
   * @retval None 
   */
-void TIM4_IRQHandler_Roll(void)
+void TIM3_IRQHandler(void)
 {
-	if (TIM_GetITStatus(TIM4, TIM_IT_CC3) != RESET)
+	if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET)
   {
-    //add tempeature_semaphore by 1, so the temperature thead can measure the tempeature once
+    //add servo_motor_roll_semaphore by 1
     osSemaphoreRelease (servo_motor_roll_semaphore);
-    TIM_ClearITPendingBit(TIM4, TIM_IT_CC3); 
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1); 
 	}
 }
 
 
 /**
-  * @brief  Initialize GPIOD pin14 used for PWM output
+  * @brief  Initialize GPIOC pin6 used for PWM output
   * @param  None
   * @retval None
   */
 void servo_motor_gpio_init_roll(void)
 {
   GPIO_InitTypeDef GPIO_InitStructure;
-  /* TIM4 clock enable */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+  /* TIM3 clock enable */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
   
-  /* GPIOD clock enable*/
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+  /* GPIOC clock enable*/
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
   
-  /* GPIOD Configuration: TIM4 CH4   (PD14) */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+  /* GPIOC Configuration: TIM3 CH1   (PC6) */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
   /* GPIO Alternate function Mode */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	/* High speed */
@@ -65,26 +65,26 @@ void servo_motor_gpio_init_roll(void)
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	/* Pull up */
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
-  GPIO_Init(GPIOD, &GPIO_InitStructure);
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
   
-  /* Connect TIM4 pins to AF2 */  
-  GPIO_PinAFConfig(GPIOD, GPIO_PinSource14, GPIO_AF_TIM4);
+  /* Connect TIM3 pins to AF2 */  
+  GPIO_PinAFConfig(GPIOC, GPIO_PinSource6, GPIO_AF_TIM3);
 }
 
 /**
-  * @brief  Initialize TIM4 CH4 as PWM output
+  * @brief  Initialize TIM3 CH1 as PWM output
   * @param  None
   * @retval None
   */
 void servo_motor_tim_init_roll(void)
 {
   /*
-   * TIM4 counter clock frequency = 315000
+   * TIM3 counter clock frequency = 315000
    * Prescaler = (TIM3CLK / TIM3 counter clock frequency) - 1
    * with TIM_period = 2100, the PWM output frequency is
-   * TIM4 counter clock frequency / TIM_period = 315000 / 6300 = 50Hz
+   * TIM3 counter clock frequency / TIM_period = 315000 / 6300 = 50Hz
    */
-  //TIM4 base is already initialized in pwm_alarm 
+  //TIM3 base is already initialized in pwm_alarm 
 	/* idenpendent PWM mode 1*/
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 	/* output compare state enabled, ebable the comparasion between counter and puls value*/
@@ -93,18 +93,18 @@ void servo_motor_tim_init_roll(void)
   TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	/* Set CCR3 to 0 degree at initial*/
 	TIM_OCInitStructure.TIM_Pulse = NIGHTY_DEGREE_PULSE;
-	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	TIM_OC1Init(TIM3, &TIM_OCInitStructure);
 
 	/* Enable the prereload of CCR3 register, which controls the duty circly of PWM */
-	TIM_OC3PreloadConfig(TIM4, TIM_OCPreload_Enable);
-	/* Enable the prereload of TIM4_ARR register, which defermines the frequency of PWM */
-	TIM_ARRPreloadConfig(TIM4, ENABLE);
-	/* TIM4 enable counter */
-	TIM_Cmd(TIM4, ENABLE);
+	TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Enable);
+	/* Enable the prereload of TIM3_ARR register, which defermines the frequency of PWM */
+	TIM_ARRPreloadConfig(TIM3, ENABLE);
+	/* TIM3 enable counter */
+	//TIM_Cmd(TIM3, ENABLE);
 }
 
 /**
-  * @brief  Initialize GPIOD pin0 as PWG output (TIM4 CH3)
+  * @brief  Initialize GPIOC pin6 as PWG output (TIM3 CH1)
   * @param  None
   * @retval None
   */
@@ -123,15 +123,15 @@ void servo_motor_update_roll(float rollAngle)
 {
   uint16_t pulse = NIGHTY_DEGREE_PULSE + round((rollAngle) * PULSE_DEGREE_SLOP);
 	TIM_OCInitStructure.TIM_Pulse = pulse;
-	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+	TIM_OC1Init(TIM3, &TIM_OCInitStructure);
 
 }
 
 void servo_motor_roll_Start(void)
 {
   //start timer
-  /* Enable TIM4 */
-	TIM_Cmd(TIM4, ENABLE);
+  /* Enable TIM3 */
+	TIM_Cmd(TIM3, ENABLE);
 }
 
 /**
@@ -148,8 +148,7 @@ void servo_motor_roll_Thread(void const * argument)
     osSemaphoreWait (servo_motor_roll_semaphore, osWaitForever);
 
     float rollAngle =45.0;
-		
-    
+   
     servo_motor_update_roll(rollAngle);
   }
 }
@@ -167,7 +166,7 @@ osThreadId  servo_motor_roll_Thread_Create(void)
   //create semaphore
   servo_motor_roll_semaphore = osSemaphoreCreate(osSemaphore(servo_motor_roll_semaphore), 1);
 
-  //create temperature thread
+  //create servo motor thread
   servo_motor_roll_thread_id = osThreadCreate(osThread(servo_motor_roll_Thread), NULL);
   return servo_motor_roll_thread_id;
 }

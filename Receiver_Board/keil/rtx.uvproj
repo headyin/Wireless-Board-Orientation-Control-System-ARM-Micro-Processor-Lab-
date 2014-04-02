@@ -48,7 +48,7 @@
           <OutputName>output</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>1</CreateHexFile>
+          <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\</ListingPath>
@@ -119,7 +119,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>0</UseSimulator>
+            <UseSimulator>1</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -130,7 +130,7 @@
             <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>1</UseTarget>
+            <UseTarget>0</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -141,7 +141,7 @@
             <RestoreTracepoints>0</RestoreTracepoints>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>12</TargetSelection>
+          <TargetSelection>9</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -2426,37 +2426,27 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>accelerometer</GroupName>
-          <Files>
-            <File>
-              <FileName>servo_motor_pitch.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\accelerometer\servo_motor_pitch.c</FilePath>
-            </File>
-            <File>
-              <FileName>servo_motor_pitch.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\accelerometer\servo_motor_pitch.h</FilePath>
-            </File>
-            <File>
-              <FileName>servo_motor_roll.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\accelerometer\servo_motor_roll.c</FilePath>
-            </File>
-            <File>
-              <FileName>servo_motor_roll.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\accelerometer\servo_motor_roll.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>LIS302DL</GroupName>
           <Files>
             <File>
               <FileName>stm32f4_discovery_lis302dl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\LIS302DL\stm32f4_discovery_lis302dl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>servo_motor</GroupName>
+          <Files>
+            <File>
+              <FileName>servo_motor_pitch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\servo_motor\servo_motor_pitch.c</FilePath>
+            </File>
+            <File>
+              <FileName>servo_motor_roll.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\servo_motor\servo_motor_roll.c</FilePath>
             </File>
           </Files>
         </Group>

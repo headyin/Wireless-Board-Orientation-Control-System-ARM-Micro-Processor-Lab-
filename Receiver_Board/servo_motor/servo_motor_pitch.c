@@ -29,22 +29,22 @@ osThreadId servo_motor_pitch_thread_id;
 TIM_OCInitTypeDef  TIM_OCInitStructure_;
 
 /** 
-  * @brief  This function handles TIM3 global interrupt request. 
+  * @brief  This function handles TIM4 global interrupt request. 
   * @param  None 
   * @retval None 
   */
-void TIM4_IRQHandler_Pitch(void)
+void TIM4_IRQHandler(void)
 {
 	if (TIM_GetITStatus(TIM4, TIM_IT_CC4) != RESET)
   {
-    //add tempeature_semaphore by 1, so the temperature thead can measure the tempeature once
+    //add servo_motor_pitch_semaphore by 1
     osSemaphoreRelease (servo_motor_pitch_semaphore);
     TIM_ClearITPendingBit(TIM4, TIM_IT_CC4); 
 	}
 }
 
 /**
-  * @brief  Initialize GPIOD pin14 used for PWM output
+  * @brief  Initialize GPIOD pin15 used for PWM output
   * @param  None
   * @retval None
   */
@@ -102,7 +102,7 @@ void servo_motor_tim_init_pitch(void)
 	/* Enable the prereload of TIM4_ARR register, which defermines the frequency of PWM */
 	TIM_ARRPreloadConfig(TIM4, ENABLE);
 	/* TIM4 enable counter */
-	TIM_Cmd(TIM4, ENABLE);
+	//TIM_Cmd(TIM4, ENABLE);
 }
 
 /**
@@ -135,7 +135,7 @@ void servo_motor_pitch_Start(void)
 	TIM_Cmd(TIM4, ENABLE);
 }
 /**
-  * @brief  measure the tempeature when the semaohore is ready.
+  * @brief  change the motor angle when semaphore is ready
   * @param  None
   * @retval None
   */
@@ -154,7 +154,7 @@ void servo_motor_pitch_Thread(void const * argument)
 }
 
 /**
-  * @brief  create a thread for temperature measurement
+  * @brief  create a thread for servo motor update
   * @param  None
   * @retval The thread ID for temperature
   */
