@@ -28,6 +28,7 @@ void CC2500_Init(void)
   CC2500_LowLevel_Init();
   
   /* Configure*/
+  CC2500_SRES_CMD();
 
   
   /* Write value to CC2500 CTRL_REG1 regsister */
@@ -71,6 +72,36 @@ uint8_t CC2500_SCAL_CMD(uint8_t ReadWriteFIFOFlag)
 uint8_t CC2500_SRX_CMD(uint8_t ReadWriteFIFOFlag)
 {
 	return CC2500_WriteCommand(CC2500_COMMAND_SRX, ReadWriteFIFOFlag);
+}
+
+/**
+  * @brief  Enable TX.
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_STX_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_STX, ReadWriteFIFOFlag);
+}
+
+/**
+  * @brief  Exit RX/TX.
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_SIDLE_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_SIDLE, ReadWriteFIFOFlag);
+}
+
+/**
+  * @brief  no operation, used to get chip status.
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_SNOP_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_SNOP, ReadWriteFIFOFlag);
 }
 
 
@@ -118,6 +149,30 @@ void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToR
   CC2500_CS_HIGH();
 }
 
+
+/**
+  * @brief  Writes several byte to the CC2500 TX FIFO.
+  * @param  pBuffer : pointer to the buffer  containing the data to be written to the CC2500 TX FIFO.
+  * @param  NumByteToWrite: Number of bytes to write.
+  * @retval None
+  */
+void CC2500_Write_TXFIFO(uint8_t* pbuffer, uint16_t NumByteToWrite)
+{
+  CC2500_WriteRegister(pbuffer, CC2500_FIFI_ADDR, NumByteToWrite);
+}
+
+/**
+  * @brief  Read several byte from the CC2500 RX FIFO.
+  * @param  pBuffer : pointer to the buffer  containing the data to be read from the CC2500 RX FIFO.
+  * @param  NumByteToWrite: Number of bytes to read.
+  * @retval None
+  */
+void CC2500_Read_RXFIFO(uint8_t* pBuffer, uint16_t NumByteToRead)
+{
+  CC2500_ReadRegister(pBuffer, CC2500_FIFI_ADDR, NumByteToRead);
+}
+
+
 /**
   * @brief  Writes several byte to the CC2500 registers.
   * @param  pBuffer : pointer to the buffer  containing the data to be written to the CC2500 registers.
@@ -127,7 +182,7 @@ void CC2500_ReadRegister(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToR
   */
 void CC2500_WriteRegister(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite)
 {
-  //set the first bit of header to 1 (read)
+  //set the first bit of header to 0 (write)
   //if multiple bytes to read, set the secodn bit of header to 1 (burst)
   if(NumByteToWrite > 0x01)
   {

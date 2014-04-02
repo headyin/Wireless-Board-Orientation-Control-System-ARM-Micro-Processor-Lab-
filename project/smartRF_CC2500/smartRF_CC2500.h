@@ -55,6 +55,12 @@
 #define CC2500_COMMAND_SRES         ((uint8_t)0x30)
 #define CC2500_COMMAND_SCAL         ((uint8_t)0x33)
 #define CC2500_COMMAND_SRX          ((uint8_t)0x34)
+#define CC2500_COMMAND_STX          ((uint8_t)0x35)
+#define CC2500_COMMAND_SIDLE        ((uint8_t)0x36)
+#define CC2500_COMMAND_SNOP         ((uint8_t)0x3D)
+
+
+#define CC2500_FIFI_ADDR            ((uint8_t)0x3F)
 
 #define SMARTRF_RADIO_CC2500
 #define SMARTRF_SETTING_FSCTRL1   0x0C//0x12 //Frequency offset = 457kHz
@@ -101,6 +107,12 @@ uint8_t CC2500_WriteCommand(uint8_t WriteCommand, uint8_t ReadWriteFIFOFlag);
 uint8_t CC2500_SRES_CMD(void);
 uint8_t CC2500_SCAL_CMD(uint8_t ReadWriteFIFOFlag);
 uint8_t CC2500_SRX_CMD(uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_STX_CMD(uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_SIDLE_CMD(uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_SNOP_CMD(uint8_t ReadWriteFIFOFlag);
+void CC2500_Write_TXFIFO(uint8_t* pbuffer, uint16_t NumByteToWrite);
+void CC2500_Read_RXFIFO(uint8_t* pBuffer, uint16_t NumByteToRead);
+
 
 
 #endif 
