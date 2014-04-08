@@ -57,6 +57,7 @@
 #define CC2500_COMMAND_SRX          ((uint8_t)0x34)
 #define CC2500_COMMAND_STX          ((uint8_t)0x35)
 #define CC2500_COMMAND_SIDLE        ((uint8_t)0x36)
+#define CC2500_COMMAND_SFRX         ((uint8_t)0x3A)
 #define CC2500_COMMAND_SNOP         ((uint8_t)0x3D)
 
 
@@ -135,7 +136,7 @@
 #define SMARTRF_SETTING_MDMCFG0     ((uint8_t)0xF8) //0xF8 // Default Channel Spacing of 200kHz
 #define SMARTRF_SETTING_DEVIATN     ((uint8_t)0x01) //0x00 //0x01 // 1785kHz
 #define SMARTRF_SETTING_MCSM2       ((uint8_t)0x07)
-#define SMARTRF_SETTING_MCSM1       ((uint8_t)0x3E)
+#define SMARTRF_SETTING_MCSM1       ((uint8_t)0x3E)  //TODO:: 0x3F for receiver 0x3E for sender
 #define SMARTRF_SETTING_MCSM0       ((uint8_t)0x18) //default 0x04 //0x18 // Automatically calibrate When going from IDLE to RX or TX (or FSTXON) check CC2500 datasheet
 #define SMARTRF_SETTING_FOCCFG      ((uint8_t)0x36) //0x1D // check datasheet
 #define SMARTRF_SETTING_BSCFG       ((uint8_t)0x1C) //default 0x6A //0x1c
@@ -172,8 +173,16 @@ uint8_t CC2500_SRX_CMD(uint8_t ReadWriteFIFOFlag);
 uint8_t CC2500_STX_CMD(uint8_t ReadWriteFIFOFlag);
 uint8_t CC2500_SIDLE_CMD(uint8_t ReadWriteFIFOFlag);
 uint8_t CC2500_SNOP_CMD(uint8_t ReadWriteFIFOFlag);
+uint8_t CC2500_SFRX_CMD(uint8_t ReadWriteFIFOFlag);
 void CC2500_Write_TXFIFO(uint8_t* pbuffer, uint16_t NumByteToWrite);
 void CC2500_Read_RXFIFO(uint8_t* pBuffer, uint16_t NumByteToRead);
+uint8_t getRxBufferSize(void);
+uint8_t getTxBufferSize(void);
+uint8_t isRxMode(void);
+uint8_t isTxMode(void);
+void CC2500_EXTI_Init(void);
+uint8_t isIdleMode(void);
+uint8_t isRXOFMode(void);
 
 
 

@@ -115,6 +115,17 @@ uint8_t CC2500_SCAL_CMD(uint8_t ReadWriteFIFOFlag)
 }
 
 /**
+  * @brief  Command: Flush the RX FIFO buffer. Only issueSFRXin IDLE or RXFIFO_OVERFLOW states
+  * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
+  * @retval uint8_t : chip status
+  */
+uint8_t CC2500_SFRX_CMD(uint8_t ReadWriteFIFOFlag)
+{
+	return CC2500_WriteCommand(CC2500_COMMAND_SFRX, ReadWriteFIFOFlag);
+}
+
+
+/**
   * @brief  Enable RX.
   * @param  uint8_t ReadWriteFIFOFlag: 1: return RX FIFO available bytes; 0: return TX FIFO available bytes
   * @retval uint8_t : chip status
@@ -426,6 +437,38 @@ static void CC2500_LowLevel_Init(void)
   GPIO_Init(CC2500_SPI_INT_GPIO_PORT, &GPIO_InitStructure);
 }
 
+void CC2500_EXTI_Init(void)
+{
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* Enable SYSCFG clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  /* Connect EXTI Line4 to PC04 pin */
+  SYSCFG_EXTILineConfig(CC2500_SPI_INT_EXTI_PORT_SOURCE, CC2500_SPI_INT_EXTI_PIN_SOURCE);
+
+  /* Configure EXTI Line4 */
+  /* Pc04 is mapped to EXTI4 */
+  EXTI_InitStructure.EXTI_Line = CC2500_SPI_INT_EXTI_LINE;
+  /* Interupt mode */
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  /* Rrigger interrupt on the rising edge*/
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  /* Enable EXTI Line1 */
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+
+  /* Enable and set EXTI Line0 Interrupt and the priority */
+  NVIC_InitStructure.NVIC_IRQChannel = CC2500_SPI_INT_EXTI_IRQn;
+  /* Group Priority 1 */
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+  /* Sub-priority 1 */
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+  /* Enable NVIC_IRQChannel */
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
 /**
   * @brief  Basic management of the timeout situation.
   * @param  None.
@@ -434,4 +477,64 @@ static void CC2500_LowLevel_Init(void)
 uint8_t CC2500_TIMEOUT_UserCallback(void)
 {
 	return CC2500_TIMEOUT_ERROR;
+}
+
+/**
+  * @brief  Get the RX FIFO size
+  * @param  None.
+  * @retval uint8_t RX FIFO size (bytes availabe to read)
+  */
+uint8_t getRxBufferSize(void)
+{
+  return CC2500_SNOP_CMD(1) & 0x0F;
+}
+
+/**
+  * @brief  Get the TX FIFO size
+  * @param  None.
+  * @retval uint8_t TX FIFO size (bytes availabe to write)
+  */
+uint8_t getTxBufferSize(void)
+{
+  return CC2500_SNOP_CMD(0) & 0x0F;
+}
+
+/**
+  * @brief  Check if the mode is RX or not
+  * @param  None.
+  * @retval uint8_t 1 RX, 0 not RX
+  */
+uint8_t isRxMode(void)
+{
+  return ((CC2500_SNOP_CMD(1) & 0x70) == 0x10);
+}
+
+/**
+  * @brief  Check if the mode is TX or not
+  * @param  None.
+  * @retval uint8_t 1 TX, 0 not TX
+  */
+uint8_t isTxMode(void)
+{
+  return ((CC2500_SNOP_CMD(0) & 0x70) == 0x20);
+}
+
+/**
+  * @brief  Check if the mode is IDLE or not
+  * @param  None.
+  * @retval uint8_t 1 TX, 0 not TX
+  */
+uint8_t isIdleMode(void)
+{
+  return ((CC2500_SNOP_CMD(0) & 0x70) == 0x00);
+}
+
+/**
+  * @brief  Check if the mode is RX buffer overflow or not
+  * @param  None.
+  * @retval uint8_t 1 TX, 0 not TX
+  */
+uint8_t isRXOFMode(void)
+{
+  return ((CC2500_SNOP_CMD(0) & 0x70) == 0x60);
 }

@@ -1,13 +1,14 @@
 #include "arm_math.h"
-
 #include "stm32f4xx.h"
 #include "cmsis_os.h"
 
 #include "smartRF_CC2500.h"
+#include "wirelessTransmitter.h"
 #include "stdio.h"
 
 void test_receive(void)
 {
+/*
 	uint8_t status,size, buffer;
   status = CC2500_SRX_CMD(1);
   printf("%d\n", (uint16_t)status);
@@ -25,27 +26,21 @@ void test_receive(void)
 		printf("status = %d, size = %d\n", (uint16_t)status, (uint16_t)size);
 		//printf("%d, %d, %d\n", (uint16_t) readbuffer[0], (uint16_t) readbuffer[1], (uint16_t) readbuffer[2]);
 	}
+*/
 }
 
 void test_send(void)
 {
-	uint8_t status,size, buffer[10] = {0,1,2,3,4,5,6,7,8,9};
-  status = CC2500_STX_CMD(0);
-  printf("%d\n", (uint16_t)status);
-	while (1)
-	{
-		osDelay(1000);
-		status = CC2500_SNOP_CMD(0);
-		size = status & 0x0F;
-		status &= 0xF0;
-		printf("status = %d, size = %d\n", (uint16_t)status, (uint16_t)size);
-		if (size == 0x0F)
-		{
-			CC2500_Write_TXFIFO(buffer, 10);
-		}
-		
-		//printf("%d, %d, %d\n", (uint16_t) readbuffer[0], (uint16_t) readbuffer[1], (uint16_t) readbuffer[2]);
-	}
+  uint8_t mode = 0;
+  float roll = -90.5;
+  while (1)
+  {
+    wireless_send(mode, roll, roll);
+    mode = (mode + 1) % 5;
+    roll = roll + 10;
+    if (roll > 100) roll = - 90.5;
+    osDelay(10);
+  }
 }
 
 
@@ -54,11 +49,16 @@ void test_send(void)
  */
 int main (void)
 {
-	//uint8_t writebuffer[3] = {66, 77, 88};
-  //uint8_t readbuffer[3] = {0, 0, 0};
-	CC2500_Default_Init();
-	test_receive();
-	//test_send();
+  //for receiving
+  wireless_Receiver_Thread_Create();
 
+
+  //for sending:
+  //CC2500_Default_Init();
+  //CC2500_EXTI_Init();
+  //test_send();
+  
+ // test_receive();
+  osDelay(osWaitForever);
 }
 
