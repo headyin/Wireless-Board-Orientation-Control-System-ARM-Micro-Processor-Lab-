@@ -78,8 +78,12 @@ void wireless_Receiver_Thread(void const * argument)
         CC2500_Read_RXFIFO(buffer, PACKET_LENGTH + 2);
         memcpy(&rollAngle, buffer + 2, 4);
         memcpy(&pitchAngle, buffer + 6, 4);
-        //  servo_motor_update_roll(rollAngle);
-// servo_motor_update_pitch(pitchAngle);
+         if(rollAngle<90&&rollAngle>-90){
+        servo_motor_update_roll(rollAngle);
+        }
+         if(pitchAngle<90&&pitchAngle>-90){
+            servo_motor_update_pitch(pitchAngle);
+         }
            printf("roll = %f, pitch = %f\n", rollAngle, pitchAngle);
       }
       timeout = RECEIVER_WAIT_TIMEOUT;

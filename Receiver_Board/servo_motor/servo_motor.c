@@ -13,8 +13,10 @@
 #include "servo_motor.h"
 #include <math.h>
 
-#define PULSE_DEGREE_SLOP -3.37f
-#define NIGHTY_DEGREE_PULSE 450 + 15
+#define PULSE_DEGREE_SLOPE_ROLL -3.37f
+#define ZERO_DEGREE_PULSE_ROLL 450 + 15
+#define PULSE_DEGREE_SLOPE_PITCH -3.37f
+#define ZERO_DEGREE_PULSE_PITCH 450 + 15
 
 TIM_OCInitTypeDef  TIM_OCInitStructure;
 
@@ -86,8 +88,9 @@ void servo_motor_tim_init(void)
 	/* Output polarity high, when counter < puls value, set the output polarity high*/
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
 	/* Set CCR3 to 0 degree at initial*/
-	TIM_OCInitStructure.TIM_Pulse = NIGHTY_DEGREE_PULSE;
+	TIM_OCInitStructure.TIM_Pulse = ZERO_DEGREE_PULSE_ROLL;
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
+    TIM_OCInitStructure.TIM_Pulse = ZERO_DEGREE_PULSE_PITCH;
 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 
 	
@@ -119,7 +122,7 @@ void servo_motor_init(void)
   */
 void servo_motor_update_roll(int16_t rollAngle)
 {
-  uint16_t pulse = NIGHTY_DEGREE_PULSE + round((rollAngle - 90) * PULSE_DEGREE_SLOP);
+  uint16_t pulse = ZERO_DEGREE_PULSE_ROLL + round((rollAngle) * PULSE_DEGREE_SLOPE_ROLL);
 	TIM_OCInitStructure.TIM_Pulse = pulse;
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
 
@@ -132,7 +135,7 @@ void servo_motor_update_roll(int16_t rollAngle)
   */
 void servo_motor_update_pitch(int16_t pitchAngle)
 {
-  uint16_t pulse = NIGHTY_DEGREE_PULSE + round((pitchAngle - 90) * PULSE_DEGREE_SLOP);
+  uint16_t pulse = ZERO_DEGREE_PULSE_PITCH + round((pitchAngle) * PULSE_DEGREE_SLOPE_PITCH);
 	TIM_OCInitStructure.TIM_Pulse = pulse;
 	TIM_OC4Init(TIM4, &TIM_OCInitStructure);
 

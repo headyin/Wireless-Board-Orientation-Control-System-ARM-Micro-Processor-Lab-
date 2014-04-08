@@ -47,7 +47,7 @@
           <OutputName>output</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>0</CreateHexFile>
+          <CreateHexFile>1</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\</ListingPath>
@@ -117,7 +117,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>1</UseSimulator>
+            <UseSimulator>0</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -128,7 +128,7 @@
             <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
           </Simulator>
           <Target>
-            <UseTarget>0</UseTarget>
+            <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>0</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -139,7 +139,7 @@
             <RestoreTracepoints>0</RestoreTracepoints>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>9</TargetSelection>
+          <TargetSelection>13</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -163,7 +163,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4103</DriverSelection>
+            <DriverSelection>4104</DriverSelection>
           </Flash1>
           <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
@@ -431,11 +431,6 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../main.c</FilePath>
-            </File>
-            <File>
-              <FileName>maFilter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\maFilter.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2410,27 +2405,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>LIS302DL</GroupName>
-          <Files>
-            <File>
-              <FileName>stm32f4_discovery_lis302dl.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\LIS302DL\stm32f4_discovery_lis302dl.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>servo_motor</GroupName>
-          <Files>
-            <File>
-              <FileName>servo_motor.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\servo_motor\servo_motor.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>smartRF_CC2500</GroupName>
+          <GroupName>SMARTRF_CC2500</GroupName>
           <Files>
             <File>
               <FileName>smartRF_CC2500.c</FileName>
@@ -2441,6 +2416,26 @@
               <FileName>wirelessTransmitter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\smartRF_CC2500\wirelessTransmitter.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>debug_printf</GroupName>
+          <Files>
+            <File>
+              <FileName>fputc_debug.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fputc_debug.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>servo_motor</GroupName>
+          <Files>
+            <File>
+              <FileName>servo_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\servo_motor\servo_motor.c</FilePath>
             </File>
           </Files>
         </Group>
