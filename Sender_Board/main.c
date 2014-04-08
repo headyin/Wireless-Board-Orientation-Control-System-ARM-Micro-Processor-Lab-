@@ -1,7 +1,7 @@
 #include "arm_math.h"
 #include "stm32f4xx.h"
 #include "cmsis_os.h"
-
+#include "accelerometer.h"
 #include "smartRF_CC2500.h"
 #include "wirelessTransmitter.h"
 #include "stdio.h"
@@ -50,15 +50,14 @@ void test_send(void)
 int main (void)
 {
   //for receiving
-  wireless_Receiver_Thread_Create();
+  //wireless_Receiver_Thread_Create();
 
 
   //for sending:
-  //CC2500_Default_Init();
-  //CC2500_EXTI_Init();
-  //test_send();
-  
- // test_receive();
+  CC2500_Default_Init();
+  accelerometer_Thread_Create();
+  accelerometer_start();
+
   osDelay(osWaitForever);
 }
 
