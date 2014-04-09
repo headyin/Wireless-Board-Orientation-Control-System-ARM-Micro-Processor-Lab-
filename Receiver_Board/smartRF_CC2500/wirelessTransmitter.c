@@ -8,7 +8,7 @@
 #include "servo_motor/servo_motor.h"
 
 #define PACKET_LENGTH 10  //10 bytes
-#define RECEIVER_WAIT_TIMEOUT ((uint32_t) 5000)
+#define RECEIVER_WAIT_TIMEOUT ((uint32_t) 10)
 
 void wireless_Receiver_Thread(void const * argument);
 
@@ -70,25 +70,30 @@ void wireless_Receiver_Thread(void const * argument)
   {
     // wait for a signal
     evt = osSignalWait (WT_PACKET_RECEIVED_SIG, timeout);
-    if (evt.status == osEventSignal)
+    //if (evt.status == osEventSignal)
     {
-      printf("rx buffer size: %d\n", (uint16_t)(CC2500_SNOP_CMD(1) & 0x0F));
+      //printf("rx buffer size: %d\n", (uint16_t)(CC2500_SNOP_CMD(1) & 0x0F));
       if (getRxBufferSize() >= (PACKET_LENGTH + 2))
       {
         CC2500_Read_RXFIFO(buffer, PACKET_LENGTH + 2);
-        memcpy(&rollAngle, buffer + 2, 4);
-        memcpy(&pitchAngle, buffer + 6, 4);
-         if(rollAngle<90&&rollAngle>-90){
-        servo_motor_update_roll(rollAngle);
-        }
-         if(pitchAngle<90&&pitchAngle>-90){
+        uint8_t check = buffer[0];
+        if (check == 0)
+        {
+          memcpy(&rollAngle, buffer + 2, 4);
+          memcpy(&pitchAngle, buffer + 6, 4);
+          if(rollAngle<90&&rollAngle>-90){
+            servo_motor_update_roll(rollAngle);
+          }
+          if(pitchAngle<90&&pitchAngle>-90)
+          {
             servo_motor_update_pitch(pitchAngle);
-         }
-           printf("roll = %f, pitch = %f\n", rollAngle, pitchAngle);
+          }
+          printf("roll = %f, pitch = %f\n", rollAngle, pitchAngle);
+        }
       }
       timeout = RECEIVER_WAIT_TIMEOUT;
     }
-    clearRxBuffer();
+    //clearRxBuffer();
     if (!isRxMode())
     {
       printf("Not in RX mode: status = %d\n", (uint16_t) CC2500_SNOP_CMD(1));
@@ -100,7 +105,7 @@ void wireless_Receiver_Thread(void const * argument)
       {
         CC2500_SRX_CMD(1);
       }
-      timeout = 50;
+      timeout = 5;
     }
   }
 }
@@ -147,7 +152,7 @@ void wireless_send(uint8_t mode, float rollAngle, float pitchAngle)
 void EXTI4_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line4) == RESET) return;
-  osSignalSet (wireless_Receiver_thread_id, WT_PACKET_RECEIVED_SIG);
+  //osSignalSet (wireless_Receiver_thread_id, WT_PACKET_RECEIVED_SIG);
   /* Clear the EXTI line 4 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line4);
 }

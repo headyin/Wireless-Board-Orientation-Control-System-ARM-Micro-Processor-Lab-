@@ -14,7 +14,7 @@
 #include <math.h>
 
 #define PULSE_DEGREE_SLOPE_ROLL -3.37f
-#define ZERO_DEGREE_PULSE_ROLL 450 + 15
+#define ZERO_DEGREE_PULSE_ROLL 600
 #define PULSE_DEGREE_SLOPE_PITCH -3.37f
 #define ZERO_DEGREE_PULSE_PITCH 450 + 15
 
@@ -122,7 +122,7 @@ void servo_motor_init(void)
   */
 void servo_motor_update_roll(int16_t rollAngle)
 {
-  uint16_t pulse = ZERO_DEGREE_PULSE_ROLL + round((rollAngle) * PULSE_DEGREE_SLOPE_ROLL);
+  uint16_t pulse = ZERO_DEGREE_PULSE_ROLL + round((-rollAngle) * PULSE_DEGREE_SLOPE_ROLL);
 	TIM_OCInitStructure.TIM_Pulse = pulse;
 	TIM_OC3Init(TIM4, &TIM_OCInitStructure);
 

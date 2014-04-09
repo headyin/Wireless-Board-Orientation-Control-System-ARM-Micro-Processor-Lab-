@@ -325,7 +325,7 @@ float getRoll(void)
 void accelerometer_Thread(void const * argument)
 {
   float rollAngle, pitchAngle;
-
+  uint8_t c = 0;
   
   while (1)
   {
@@ -342,7 +342,12 @@ void accelerometer_Thread(void const * argument)
     pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct) / 100.0;
     if (getThreadToRun() == 0)
     {
-      wireless_send(0, roll_degree_MA, pitch_degree_MA);
+      c++;
+      if (c == 10)
+      {
+        wireless_send(0, roll_degree_MA, pitch_degree_MA);
+        c = 0;
+      }
     }
     //printf("%f, %f\n",roll_degree_MA,pitch_degree_MA);
   }
