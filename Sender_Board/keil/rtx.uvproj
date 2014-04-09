@@ -452,6 +452,16 @@
               <FileType>1</FileType>
               <FilePath>..\LIS302DL\stm32f4_discovery_lis302dl.c</FilePath>
             </File>
+            <File>
+              <FileName>push_button.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\push_button.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\lcd16.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

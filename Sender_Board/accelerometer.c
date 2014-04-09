@@ -18,6 +18,7 @@
 #include "maFilter.h"
 #include "LIS302DL/stm32f4_discovery_lis302dl.h"
 #include "wirelessTransmitter.h"
+#include "push_button.h"
 
 #include "stdio.h"
 
@@ -339,8 +340,10 @@ void accelerometer_Thread(void const * argument)
     filter_add((int16_t) round(pitchAngle * 100), &accelerometer_pitch_filter_struct);
     roll_degree_MA = filter_average(&accelerometer_roll_filter_struct) / 100.0;
     pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct) / 100.0;
-    //Update servo motor
-    wireless_send(0, roll_degree_MA, pitch_degree_MA);
+    if (getThreadToRun() == 0)
+    {
+      wireless_send(0, roll_degree_MA, pitch_degree_MA);
+    }
     //printf("%f, %f\n",roll_degree_MA,pitch_degree_MA);
   }
 }

@@ -77,8 +77,6 @@ void wireless_Receiver_Thread(void const * argument)
         CC2500_Read_RXFIFO(buffer, PACKET_LENGTH + 2);
         memcpy(&rollAngle, buffer + 2, 4);
         memcpy(&pitchAngle, buffer + 6, 4);
- //       rollAngle  = (float) (*(buffer + 2));
- //       pitchAngle = (float) (*(buffer + 6));
         printf("roll = %f, pitch = %f\n", rollAngle, pitchAngle);
       }
       timeout = RECEIVER_WAIT_TIMEOUT;
