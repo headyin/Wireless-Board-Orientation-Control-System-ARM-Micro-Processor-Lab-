@@ -6,6 +6,8 @@
 #include "wirelessTransmitter.h"
 #include "push_button.h"
 #include "lcd16.h"
+#include "keypad.h"
+
 #include "stdio.h"
 
 
@@ -24,7 +26,7 @@ int main (void)
   CC2500_Default_Init();
   accelerometer_Thread_Create();
   lcd_thread_create();
-
+  keypad_Thread_Create();
   accelerometer_start();
   lcd_start();
 

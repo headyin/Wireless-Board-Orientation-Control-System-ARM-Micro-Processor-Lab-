@@ -1,0 +1,221 @@
+#include "keypad.h"
+
+#include <stdio.h>
+#include "stm32f4xx.h"
+#include "cmsis_os.h"
+#include "stm32f4xx_conf.h"
+
+#define scanKeypad 0x01
+
+void keypadThread(void const *args);
+
+osThreadId keypadThreadID;
+osThreadDef(keypadThread, osPriorityNormal, 1, 0);
+
+void setRowMode()
+{
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	
+		GPIO_InitTypeDef GPIO_ROWS;
+		GPIO_ROWS.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
+		GPIO_ROWS.GPIO_Mode = GPIO_Mode_OUT;
+		GPIO_ROWS.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_ROWS.GPIO_OType = GPIO_OType_PP; 
+		GPIO_ROWS.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_Init(GPIOE, &GPIO_ROWS);
+
+		GPIO_InitTypeDef GPIO_COLUM;
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+		GPIO_COLUM.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
+		GPIO_COLUM.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_COLUM.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_COLUM.GPIO_OType = GPIO_OType_PP;
+		GPIO_COLUM.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_Init(GPIOE, &GPIO_COLUM);
+	
+		GPIO_ResetBits(GPIOE, GPIO_Pin_3);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_4);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_5);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_6);
+}
+
+
+void setColumMode()
+{
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	
+		GPIO_InitTypeDef GPIO_ROWS;
+		GPIO_ROWS.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
+		GPIO_ROWS.GPIO_Mode = GPIO_Mode_IN;
+		GPIO_ROWS.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_ROWS.GPIO_OType = GPIO_OType_PP; 
+		GPIO_ROWS.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_Init(GPIOE, &GPIO_ROWS);
+
+		GPIO_InitTypeDef GPIO_COLUM;
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+		GPIO_COLUM.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
+		GPIO_COLUM.GPIO_Mode = GPIO_Mode_OUT;
+		GPIO_COLUM.GPIO_Speed = GPIO_Speed_100MHz;
+		GPIO_COLUM.GPIO_OType = GPIO_OType_PP;
+		GPIO_COLUM.GPIO_PuPd = GPIO_PuPd_UP;
+		GPIO_Init(GPIOE, &GPIO_COLUM);
+	
+		GPIO_ResetBits(GPIOE, GPIO_Pin_10);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_11);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_12);
+		GPIO_ResetBits(GPIOE, GPIO_Pin_13);
+}
+
+/**
+*@brief timer 7 interrupt handler. 
+*/
+void TIM7_IRQHandler()
+{
+    if(EXTI_GetITStatus(EXTI_Line7) == RESET) return;
+		osSignalSet(keypadThreadID, scanKeypad);
+    EXTI_ClearITPendingBit(EXTI_Line7);
+
+}
+
+char decode(int rowNumber, int columNumber)
+{
+		switch (rowNumber)
+		{
+				case 1:
+					switch(columNumber)
+					{
+						case 1:
+								return '1';
+						case 2:
+								return '2';
+						case 3:
+								return '3';
+						case 4:
+								return 'A';
+					}
+				case 2:
+					switch(columNumber)
+					{
+						case 1:
+								return '4';
+						case 2:
+								return '5';
+						case 3:
+								return '6';
+						case 4:
+								return 'B';
+					}
+			case 3:
+				switch(columNumber)
+				{
+						case 1:
+								return '7';
+						case 2:
+								return '8';
+						case 3:
+								return '9';
+						case 4:
+								return 'C';
+				}
+			case 4:
+				switch(columNumber)
+					{
+						case 1:
+								return '*';
+						case 2:
+								return '0';
+						case 3:
+								return '#';
+						case 4:
+								return 'D';
+					}			
+		}
+    return '#';
+}
+
+/**
+*@brief Program entry point
+*/
+void keypadThread(void const *args) 
+{
+		setRowMode();
+		int rowNumber, columNumber, mode;
+		mode = 0;
+		rowNumber = 0;
+		columNumber = 0;
+		while(1)
+		{
+				//osSignalWait(scanKeypad ,osWaitForever);
+      osDelay(100);
+				if(mode == 0)
+				{
+						if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_10) == 0)
+						{
+								setColumMode();
+								mode = 1;
+								rowNumber = 1;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11) == 0)
+						{
+								setColumMode();
+								mode = 1;
+								rowNumber = 2;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == 0)
+						{
+								setColumMode();
+								mode = 1;
+								rowNumber = 3;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == 0)
+						{
+								setColumMode();
+								mode = 1;
+								rowNumber = 4;
+						}
+				}
+				else
+				{
+						if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3) == 0)
+						{
+								setRowMode();
+								mode = 0;
+								columNumber = 1;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0)
+						{
+								setRowMode();
+								mode = 0;
+								columNumber = 2;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
+						{
+								setRowMode();
+								mode = 0;
+								columNumber = 3;
+						}
+						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) == 0)
+						{
+								setRowMode();
+								mode = 0;
+								columNumber = 4;
+						}
+				}
+				if(rowNumber != 0 && columNumber != 0)
+				{
+						char c = decode(rowNumber, columNumber);
+            printf("%c", c);
+						rowNumber = 0;
+						columNumber = 0;
+				}
+		}
+}
+
+osThreadId keypad_Thread_Create(void)
+{
+  keypadThreadID = osThreadCreate(osThread(keypadThread), NULL);
+  return keypadThreadID;
+}
