@@ -330,7 +330,7 @@ void accelerometer_Thread(void const * argument)
   while (1)
   {
 		//Wait for semaphore to be released by interrupt
-    osSemaphoreWait (accelerometer_semaphore, osWaitForever);   
+    osSemaphoreWait (accelerometer_semaphore, 12);   
 		//Get measurement and calculate angles
     measure_accleration();
     rollAngle = getRoll();

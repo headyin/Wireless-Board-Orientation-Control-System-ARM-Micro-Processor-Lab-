@@ -27,6 +27,7 @@ int main (void)
   accelerometer_Thread_Create();
   lcd_thread_create();
   keypad_Thread_Create();
+
   accelerometer_start();
   lcd_start();
 

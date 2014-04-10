@@ -5,81 +5,49 @@
 #include "cmsis_os.h"
 #include "stm32f4xx_conf.h"
 
-#define scanKeypad 0x01
+GPIO_InitTypeDef GPIO_ROWS;
+GPIO_InitTypeDef GPIO_COLUM;
 
 void keypadThread(void const *args);
 
 osThreadId keypadThreadID;
 osThreadDef(keypadThread, osPriorityNormal, 1, 0);
 
-void setRowMode()
+void keypad_init()
 {
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-	
-		GPIO_InitTypeDef GPIO_ROWS;
-		GPIO_ROWS.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
-		GPIO_ROWS.GPIO_Mode = GPIO_Mode_OUT;
-		GPIO_ROWS.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_ROWS.GPIO_OType = GPIO_OType_PP; 
-		GPIO_ROWS.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_Init(GPIOE, &GPIO_ROWS);
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
+  
+  GPIO_ROWS.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
+  GPIO_ROWS.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_ROWS.GPIO_OType = GPIO_OType_PP; 
+  GPIO_ROWS.GPIO_PuPd = GPIO_PuPd_UP;
 
-		GPIO_InitTypeDef GPIO_COLUM;
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-		GPIO_COLUM.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
-		GPIO_COLUM.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_COLUM.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_COLUM.GPIO_OType = GPIO_OType_PP;
-		GPIO_COLUM.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_Init(GPIOE, &GPIO_COLUM);
-	
-		GPIO_ResetBits(GPIOE, GPIO_Pin_3);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_4);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_5);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_6);
+  GPIO_COLUM.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
+  GPIO_COLUM.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_COLUM.GPIO_OType = GPIO_OType_PP;
+  GPIO_COLUM.GPIO_PuPd = GPIO_PuPd_UP;
 }
 
-
-void setColumMode()
+void setRowMode(void)
 {
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-	
-		GPIO_InitTypeDef GPIO_ROWS;
-		GPIO_ROWS.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
-		GPIO_ROWS.GPIO_Mode = GPIO_Mode_IN;
-		GPIO_ROWS.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_ROWS.GPIO_OType = GPIO_OType_PP; 
-		GPIO_ROWS.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_Init(GPIOE, &GPIO_ROWS);
+  GPIO_ROWS.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_Init(GPIOE, &GPIO_ROWS);
 
-		GPIO_InitTypeDef GPIO_COLUM;
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-		GPIO_COLUM.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13;
-		GPIO_COLUM.GPIO_Mode = GPIO_Mode_OUT;
-		GPIO_COLUM.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_COLUM.GPIO_OType = GPIO_OType_PP;
-		GPIO_COLUM.GPIO_PuPd = GPIO_PuPd_UP;
-		GPIO_Init(GPIOE, &GPIO_COLUM);
-	
-		GPIO_ResetBits(GPIOE, GPIO_Pin_10);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_11);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_12);
-		GPIO_ResetBits(GPIOE, GPIO_Pin_13);
+  GPIO_COLUM.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_Init(GPIOE, &GPIO_COLUM);
+
+  GPIO_ResetBits(GPIOE, GPIO_Pin_7 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6);
 }
-
-/**
-*@brief timer 7 interrupt handler. 
-*/
-void TIM7_IRQHandler()
+void setColumMode(void)
 {
-    if(EXTI_GetITStatus(EXTI_Line7) == RESET) return;
-		osSignalSet(keypadThreadID, scanKeypad);
-    EXTI_ClearITPendingBit(EXTI_Line7);
+  GPIO_ROWS.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_Init(GPIOE, &GPIO_ROWS);
 
+  GPIO_COLUM.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_Init(GPIOE, &GPIO_COLUM);
+
+	GPIO_ResetBits(GPIOE, GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13);
 }
-
 char decode(int rowNumber, int columNumber)
 {
 		switch (rowNumber)
@@ -135,83 +103,82 @@ char decode(int rowNumber, int columNumber)
 		}
     return '#';
 }
+int getRow(void)
+{
+  int rowNumber = 0;
+  if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_10) == 0)
+  {
+    setColumMode();
+    rowNumber = 1;
+  }
+  else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11) == 0)
+  {
+    setColumMode();
+    rowNumber = 2;
+  }
+  else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == 0)
+  {
+    setColumMode();
+    rowNumber = 3;
+  }
+  else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == 0)
+  {
+    setColumMode();
+    rowNumber = 4;
+  }
+  return rowNumber;
+}
+
+int getColumn(void)
+{
+  int columNumber = 0;
+  if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0)
+  {
+    setRowMode();
+    columNumber = 1;
+  }
+  else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
+  {
+    setRowMode();
+    columNumber = 2;
+  }
+	else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) == 0)
+	{
+    setRowMode();
+    columNumber = 3;
+	}
+  else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_7) == 0)
+  {
+    setRowMode();
+    columNumber = 4;
+  }
+  return columNumber;
+}
+
 
 /**
 *@brief Program entry point
 */
 void keypadThread(void const *args) 
 {
-		setRowMode();
-		int rowNumber, columNumber, mode;
-		mode = 0;
-		rowNumber = 0;
-		columNumber = 0;
-		while(1)
-		{
-				//osSignalWait(scanKeypad ,osWaitForever);
-      osDelay(100);
-				if(mode == 0)
-				{
-						if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_10) == 0)
-						{
-								setColumMode();
-								mode = 1;
-								rowNumber = 1;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11) == 0)
-						{
-								setColumMode();
-								mode = 1;
-								rowNumber = 2;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12) == 0)
-						{
-								setColumMode();
-								mode = 1;
-								rowNumber = 3;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_13) == 0)
-						{
-								setColumMode();
-								mode = 1;
-								rowNumber = 4;
-						}
-				}
-				else
-				{
-						if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3) == 0)
-						{
-								setRowMode();
-								mode = 0;
-								columNumber = 1;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4) == 0)
-						{
-								setRowMode();
-								mode = 0;
-								columNumber = 2;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_5) == 0)
-						{
-								setRowMode();
-								mode = 0;
-								columNumber = 3;
-						}
-						else if(GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6) == 0)
-						{
-								setRowMode();
-								mode = 0;
-								columNumber = 4;
-						}
-				}
-				if(rowNumber != 0 && columNumber != 0)
-				{
-						char c = decode(rowNumber, columNumber);
-            printf("%c", c);
-						rowNumber = 0;
-						columNumber = 0;
-				}
-		}
+  int rowNumber = 0, columNumber = 0;
+  keypad_init();
+  while(1)
+  {
+    osDelay(300);
+    rowNumber = getRow();
+    if (rowNumber != 0)
+    {
+      columNumber = getColumn();
+    }
+    if(rowNumber != 0 && columNumber != 0)
+    {
+      char c = decode(rowNumber, columNumber);
+      printf("%c", c);
+      rowNumber = 0;
+      columNumber = 0;
+    }
+  }
 }
 
 osThreadId keypad_Thread_Create(void)
