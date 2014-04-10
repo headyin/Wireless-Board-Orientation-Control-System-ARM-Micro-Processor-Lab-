@@ -7,6 +7,7 @@
 #include "push_button.h"
 #include "lcd16.h"
 #include "keypad.h"
+#include "oModeTrans.h"
 
 #include "stdio.h"
 
@@ -22,11 +23,12 @@ int main (void)
 
 
   //for sending:
+  lcd_thread_create();
   button_init();
   CC2500_Default_Init();
   accelerometer_Thread_Create();
-  lcd_thread_create();
   keypad_Thread_Create();
+  oModeTrans_Thread_Create();
 
   accelerometer_start();
   lcd_start();

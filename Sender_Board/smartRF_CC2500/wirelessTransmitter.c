@@ -124,7 +124,7 @@ void wireless_send(uint8_t mode, float rollAngle, float pitchAngle)
   if (isTxMode())
   {
     CC2500_Write_TXFIFO(buffer, PACKET_LENGTH);
-    printf("send data\n");
+    printf("send [%d] %f, %f\n", mode, rollAngle, pitchAngle);
   }
   else
   {

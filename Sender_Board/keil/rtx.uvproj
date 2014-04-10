@@ -467,6 +467,11 @@
               <FileType>1</FileType>
               <FilePath>..\keypad.c</FilePath>
             </File>
+            <File>
+              <FileName>oModeTrans.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\oModeTrans.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

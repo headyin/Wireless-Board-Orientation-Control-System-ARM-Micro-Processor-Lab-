@@ -3,10 +3,30 @@
 #include <stdio.h>
 #include "stm32f4xx.h"
 #include "cmsis_os.h"
+#include "push_button.h"
+#include "lcd16.h"
 #include "stm32f4xx_conf.h"
+#include "oModeTrans.h"
+
+
+#define MAX_INPUT_ANGLES 50
+#define MAX_VALUE 10000000
 
 GPIO_InitTypeDef GPIO_ROWS;
 GPIO_InitTypeDef GPIO_COLUM;
+uint8_t startMode2 = 0;
+uint8_t startPitch = 0;
+uint8_t finishRoll = 0;
+uint8_t finishPitch = 0;
+
+int32_t rollAngle;
+int32_t pitchAngle;
+int32_t delta;
+
+uint32_t totalAngles;
+int32_t rolls[MAX_INPUT_ANGLES];
+int32_t pitches[MAX_INPUT_ANGLES];
+int32_t deltas[MAX_INPUT_ANGLES];
 
 void keypadThread(void const *args);
 
@@ -101,7 +121,7 @@ char decode(int rowNumber, int columNumber)
 								return 'D';
 					}			
 		}
-    return '#';
+    return ' ';
 }
 int getRow(void)
 {
@@ -155,6 +175,15 @@ int getColumn(void)
   return columNumber;
 }
 
+uint8_t setValue(int32_t *value, char c)
+{
+  if (MAX_VALUE < *value)
+  {
+    return 0;
+  }
+  *value = (*value) * 10 + c -'0';
+  return 1;
+}
 
 /**
 *@brief Program entry point
@@ -165,7 +194,7 @@ void keypadThread(void const *args)
   keypad_init();
   while(1)
   {
-    osDelay(300);
+    osDelay(200);
     rowNumber = getRow();
     if (rowNumber != 0)
     {
@@ -174,9 +203,127 @@ void keypadThread(void const *args)
     if(rowNumber != 0 && columNumber != 0)
     {
       char c = decode(rowNumber, columNumber);
-      printf("%c", c);
+      //printf("%c", c);
+      switch (c)
+      {
+        case 'A': set_next_mode(MODE_1); break;
+        case 'B': set_next_mode(MODE_2); break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9': 
+        {
+          if (getThreadToRun() == MODE_2)
+          {
+            if (finishRoll == 0)
+            {
+              if (setValue(&rollAngle,c))
+              {
+                lcd_write_char(c);
+              }
+            }
+            else if (finishPitch == 0)
+            {
+              if (setValue(&pitchAngle,c))
+              {
+                lcd_write_char(c);
+              }
+            }
+            else
+            {
+              if (setValue(&delta,c))
+              {
+                lcd_write_char(c);
+              }
+            }
+          }
+          break;
+        }
+        case '#': //enter
+        {
+          if (getThreadToRun() == MODE_2)
+          {
+            if (finishRoll == 0)
+            {
+              finishRoll = 1;
+              lcd_display_string("Pitch Angle:", "");
+            }
+            else if (finishPitch == 0)
+            {
+              finishPitch = 1;
+              lcd_display_string("Delta Time (s):", "");
+            }
+            else 
+            {
+              rollAngle = rollAngle % 181 - 90;
+              pitchAngle = pitchAngle % 181 - 90;
+              rolls[totalAngles] = rollAngle;
+              pitches[totalAngles] = pitchAngle;
+              deltas[totalAngles] = delta;
+              totalAngles ++;
+              startMode2 = 0;
+            }
+          }
+          break;          
+        }
+        case '*': //reset
+        {
+          if (getThreadToRun() == MODE_2)
+          {
+            if (finishRoll == 0)
+            {
+              lcd_display_string("Roll Angle:", "");
+              rollAngle = 0;
+            }
+            else if (finishPitch == 0)
+            {
+              lcd_display_string("Pitch Angle:", "");
+              pitchAngle = 0;
+            }
+            else
+            {
+              lcd_display_string("Delta Time (s):", "");
+              delta = 0;
+            }
+          }
+          break;
+        }
+        case 'D':
+        {
+          if (getThreadToRun() == MODE_2)
+          {
+            req_tran_timed_angels(totalAngles, rolls, pitches, deltas);
+            totalAngles = 0;
+          }
+          break;
+        }
+        default: break;
+      }
       rowNumber = 0;
       columNumber = 0;
+    }
+    if (getThreadToRun() == MODE_2)
+    {
+      if (startMode2 == 0)
+      {
+        startMode2 = 1;
+        finishRoll = 0;
+        finishPitch = 0;
+        lcd_display_string("Roll Angle:", "");
+        rollAngle = 0;
+        pitchAngle = 0;
+        delta = 0;
+      }
+    }
+    else
+    {
+      totalAngles = 0;
     }
   }
 }

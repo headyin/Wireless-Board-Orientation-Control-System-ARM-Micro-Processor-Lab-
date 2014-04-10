@@ -105,4 +105,6 @@ osThreadId  lcd_thread_create(void);
  */
 void lcd_start(void);
 
+void lcd_display_string(char* line1, char* line2);
+
 #endif

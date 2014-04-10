@@ -211,8 +211,8 @@ void lcd_set_display_angles(float roll, float pitch)
 {
   memset(line1,0,strlen(line1));
   memset(line2,0,strlen(line2));
-  snprintf(line1, LINE_LENGTH + 1, "Roll  : %.1f%c", roll, 0xdf);
-  snprintf(line2, LINE_LENGTH + 1, "Pitch : %.1f%c", pitch, 0xdf);
+  snprintf(line1, LINE_LENGTH + 1, "Roll  : %.1f%c", roll + 90, 0xdf);
+  snprintf(line2, LINE_LENGTH + 1, "Pitch : %.1f%c", pitch + 90, 0xdf);
 }
 
 /**
@@ -235,34 +235,40 @@ void lcd_set_display_temperaure(float temp)
  */
 void lcd_thread(void const * argument)
 {
-  int i;
   while (1)
   {
     osSemaphoreWait (lcd_semaphore, osWaitForever);
-    if (getThreadToRun() == 0)
+    if (getThreadToRun() == MODE_1)
     {
       //Accelerometer mode
       lcd_set_display_angles(getFilteredRollAngle(),getFilteredPitchAngle());
-    } else
-    {
+      lcd_display_string(line1, line2);
     }
-    //clear the curent content in LCD
-    lcd_clear_command();
-    //print the first line
-    for (i = 0; i < strlen(line1); i++)
-    {
-      lcd_write_char(line1[i]);
-    }
-    //move to second line
-    for (i = 0; i < VIRTUAL_LINE_LENGTH - strlen(line1); i++)
-    {
-      lcd_write_char(' ');
-    }
-    //print the second line
-    for (i = 0; i < strlen(line2); i++)
-    {
-      lcd_write_char(line2[i]);
-    }
+  }
+}
+
+void lcd_display_string(char* line1, char* line2)
+{
+  int i;
+  int l1Length = strlen(line1);
+  int l2Length = strlen(line2);
+  l1Length = (l1Length < LINE_LENGTH)? l1Length : LINE_LENGTH;
+  l2Length = (l2Length < LINE_LENGTH)? l2Length : LINE_LENGTH;
+  lcd_clear_command();
+  //print the first line
+  for (i = 0; i < l1Length; i++)
+  {
+    lcd_write_char(line1[i]);
+  }
+  //move to second line
+  for (i = 0; i < VIRTUAL_LINE_LENGTH - strlen(line1); i++)
+  {
+    lcd_write_char(' ');
+  }
+  //print the second line
+  for (i = 0; i < strlen(line2); i++)
+  {
+    lcd_write_char(line2[i]);
   }
 }
 

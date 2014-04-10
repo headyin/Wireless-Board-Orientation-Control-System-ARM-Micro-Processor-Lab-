@@ -16,9 +16,15 @@
 #include "cmsis_os.h"
 
 /* flag used to indicate accelerastion sensor interrupt */
-volatile uint_fast16_t thread_ready;
+volatile uint_fast8_t thread_ready;
+volatile uint_fast8_t next_mode;
 
-uint_fast16_t getThreadToRun(void)
+inline void set_next_mode(uint8_t mode)
+{
+  next_mode = mode;
+}
+
+uint_fast8_t getThreadToRun(void)
 {
   return thread_ready;
 }
@@ -82,7 +88,7 @@ void button_init(void)
 void EXTI0_IRQHandler(void)
 {
   if(EXTI_GetITStatus(EXTI_Line0) == RESET) return;
-  thread_ready = 1 - thread_ready; 
+  thread_ready = next_mode; 
   /* Clear the EXTI line 0 pending bit */
   EXTI_ClearITPendingBit(EXTI_Line0);
 }

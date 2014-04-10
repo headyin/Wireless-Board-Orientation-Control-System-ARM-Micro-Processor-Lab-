@@ -340,12 +340,12 @@ void accelerometer_Thread(void const * argument)
     filter_add((int16_t) round(pitchAngle * 100), &accelerometer_pitch_filter_struct);
     roll_degree_MA = filter_average(&accelerometer_roll_filter_struct) / 100.0;
     pitch_degree_MA = filter_average(&accelerometer_pitch_filter_struct) / 100.0;
-    if (getThreadToRun() == 0)
+    if (getThreadToRun() == MODE_1)
     {
       c++;
       if (c == 10)
       {
-        wireless_send(0, roll_degree_MA, pitch_degree_MA);
+        wireless_send(MODE_1, roll_degree_MA, pitch_degree_MA);
         c = 0;
       }
     }
