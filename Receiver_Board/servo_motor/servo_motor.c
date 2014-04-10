@@ -13,9 +13,9 @@
 #include "servo_motor.h"
 #include <math.h>
 
-#define PULSE_DEGREE_SLOPE_ROLL -3.37f
+#define PULSE_DEGREE_SLOPE_ROLL -3.77f
 #define ZERO_DEGREE_PULSE_ROLL 600
-#define PULSE_DEGREE_SLOPE_PITCH -3.37f
+#define PULSE_DEGREE_SLOPE_PITCH -3.77f
 #define ZERO_DEGREE_PULSE_PITCH 450 + 15
 
 TIM_OCInitTypeDef  TIM_OCInitStructure;

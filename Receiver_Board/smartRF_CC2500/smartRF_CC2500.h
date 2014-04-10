@@ -183,6 +183,9 @@ uint8_t isTxMode(void);
 void CC2500_EXTI_Init(void);
 uint8_t isIdleMode(void);
 uint8_t isRXOFMode(void);
+uint8_t isRx(uint8_t mode);
+uint8_t isRXOF(uint8_t mode);
+uint8_t isIdle(uint8_t mode);
 
 
 

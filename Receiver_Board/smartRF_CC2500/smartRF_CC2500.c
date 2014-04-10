@@ -510,6 +510,16 @@ uint8_t isRxMode(void)
 }
 
 /**
+  * @brief  Check if the mode is RX or not
+  * @param  None.
+  * @retval uint8_t 1 RX, 0 not RX
+  */
+uint8_t isRx(uint8_t mode)
+{
+  return (mode == 0x10);
+}
+
+/**
   * @brief  Check if the mode is TX or not
   * @param  None.
   * @retval uint8_t 1 TX, 0 not TX
@@ -530,6 +540,16 @@ uint8_t isIdleMode(void)
 }
 
 /**
+  * @brief  Check if the mode is IDLE or not
+  * @param  None.
+  * @retval uint8_t 1 TX, 0 not TX
+  */
+uint8_t isIdle(uint8_t mode)
+{
+  return (mode == 0x00);
+}
+
+/**
   * @brief  Check if the mode is RX buffer overflow or not
   * @param  None.
   * @retval uint8_t 1 TX, 0 not TX
@@ -537,4 +557,14 @@ uint8_t isIdleMode(void)
 uint8_t isRXOFMode(void)
 {
   return ((CC2500_SNOP_CMD(0) & 0x70) == 0x60);
+}
+
+/**
+  * @brief  Check if the mode is RX buffer overflow or not
+  * @param  None.
+  * @retval uint8_t 1 TX, 0 not TX
+  */
+uint8_t isRXOF(uint8_t mode)
+{
+  return (mode == 0x60);
 }

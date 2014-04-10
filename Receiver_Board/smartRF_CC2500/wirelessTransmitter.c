@@ -8,7 +8,7 @@
 #include "servo_motor/servo_motor.h"
 
 #define PACKET_LENGTH 10  //10 bytes
-#define RECEIVER_WAIT_TIMEOUT ((uint32_t) 10)
+#define RECEIVER_WAIT_TIMEOUT ((uint32_t) 10000)
 
 void wireless_Receiver_Thread(void const * argument);
 
@@ -16,6 +16,7 @@ void wireless_Receiver_Thread(void const * argument);
 osThreadDef(wireless_Receiver_Thread, osPriorityHigh, 1, 0);
 osThreadId wireless_Receiver_thread_id;
 
+uint32_t failedCount = 0;
 
 
 /**
@@ -53,14 +54,14 @@ osThreadId  wireless_Receiver_Thread_Create(void)
   */
 void wireless_Receiver_Thread(void const * argument)
 {
-  osEvent evt;
-  uint8_t buffer[PACKET_LENGTH + 2];
+  uint8_t buffer[PACKET_LENGTH];
   float rollAngle, pitchAngle;
-  uint32_t timeout = RECEIVER_WAIT_TIMEOUT;
-  
+  uint8_t mode;
+  uint8_t state = 0;
+Restart:  
   //init wireless transimitter
   CC2500_Default_Init();
-  CC2500_EXTI_Init();
+  //CC2500_EXTI_Init();
   //clear RX FIFO
   clearRxBuffer();
   //enable RX mode
@@ -68,44 +69,78 @@ void wireless_Receiver_Thread(void const * argument)
   
   while (1)
   {
-    // wait for a signal
-    evt = osSignalWait (WT_PACKET_RECEIVED_SIG, timeout);
-    //if (evt.status == osEventSignal)
+    switch (state)
     {
-      //printf("rx buffer size: %d\n", (uint16_t)(CC2500_SNOP_CMD(1) & 0x0F));
-      if (getRxBufferSize() >= (PACKET_LENGTH + 2))
+      case 0:
       {
-        CC2500_Read_RXFIFO(buffer, PACKET_LENGTH + 2);
-        uint8_t check = buffer[0];
-        if (check == 0)
+        if (getRxBufferSize() >= 1)
         {
-          memcpy(&rollAngle, buffer + 2, 4);
-          memcpy(&pitchAngle, buffer + 6, 4);
-          if(rollAngle<90&&rollAngle>-90){
+          CC2500_Read_RXFIFO(&mode, 1);
+          if (mode == 0xFF)
+          {
+            state = 1;
+          }
+        }
+        break;
+      }
+      case 1:
+      {
+        if (getRxBufferSize() >= 1)
+        {
+          CC2500_Read_RXFIFO(&mode, 1);
+          if (mode == 0xFF)
+          {
+            state = 2;
+          }
+          else
+          {
+            state = 0;
+          }
+        }
+        break;
+      }
+      case 2:
+      {
+        if (getRxBufferSize() >= PACKET_LENGTH)
+        {
+          CC2500_Read_RXFIFO(buffer, PACKET_LENGTH);
+          memcpy(&rollAngle, buffer, 4);
+          memcpy(&pitchAngle, buffer + 4, 4);
+          if((rollAngle <= 90) && (rollAngle >= -90))
+          {
             servo_motor_update_roll(rollAngle);
           }
-          if(pitchAngle<90&&pitchAngle>-90)
+          if((pitchAngle <= 90) && (pitchAngle >= -90))
           {
             servo_motor_update_pitch(pitchAngle);
           }
-          printf("roll = %f, pitch = %f\n", rollAngle, pitchAngle);
+          state = 0;
         }
       }
-      timeout = RECEIVER_WAIT_TIMEOUT;
+      break;
+      default: break;
     }
-    //clearRxBuffer();
-    if (!isRxMode())
+    mode = (CC2500_SNOP_CMD(0) & 0x70);
+    if (!isRx(mode))
     {
       printf("Not in RX mode: status = %d\n", (uint16_t) CC2500_SNOP_CMD(1));
-      if (isRXOFMode())
+      if (isRXOF(mode))
       {
         CC2500_SFRX_CMD(1);
       }
-      if (isIdleMode())
+      else if (isIdle(mode))
       {
         CC2500_SRX_CMD(1);
       }
-      timeout = 5;
+      else
+      {
+        failedCount++;
+        if (failedCount == RECEIVER_WAIT_TIMEOUT)
+        {
+          failedCount = 0;
+          goto Restart;
+        }
+      }
     }
   }
 }

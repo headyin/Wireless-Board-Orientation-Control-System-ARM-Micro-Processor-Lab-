@@ -26,6 +26,8 @@ int main (void)
   lcd_thread_create();
   button_init();
   CC2500_Default_Init();
+  //enable TX mode
+  CC2500_STX_CMD(0);
   accelerometer_Thread_Create();
   keypad_Thread_Create();
   oModeTrans_Thread_Create();

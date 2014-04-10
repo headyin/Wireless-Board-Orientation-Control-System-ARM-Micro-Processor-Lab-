@@ -298,7 +298,15 @@ void keypadThread(void const *args)
         {
           if (getThreadToRun() == MODE_2)
           {
-            req_tran_timed_angels(totalAngles, rolls, pitches, deltas);
+            if (totalAngles > 0)
+              req_tran_timed_angels(totalAngles, rolls, pitches, deltas);
+          }
+          break;
+        }
+        case 'C':
+        {
+          if (getThreadToRun() == MODE_2)
+          {
             totalAngles = 0;
           }
           break;

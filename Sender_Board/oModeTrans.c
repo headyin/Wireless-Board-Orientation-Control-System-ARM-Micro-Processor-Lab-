@@ -21,13 +21,12 @@ osThreadDef(oModeTransThread, osPriorityNormal, 1, 0);
 void send_block_angles(uint32_t n, int32_t* rolls, int32_t* pitches, int32_t* deltas)
 {
   int i,j;
-  wireless_send(1, 0, 0);
   for (i = 0; i < n; i++)
   {
-    int32_t delay = deltas[i];
-    if (delay < 1) delay = 300;
-    osDelay(delay * 1000 - 300);
-    for (j = 0; j < 25; j++)
+    int32_t delay = deltas[i] * 1000;
+    if (delay < 1) delay = 1000;
+    osDelay(delay - 999);
+    for (j = 0; j < 100; j++)
     {
       wireless_send(MODE_2, rolls[i], pitches[i]);
       osDelay(10);

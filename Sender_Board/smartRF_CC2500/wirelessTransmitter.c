@@ -109,14 +109,11 @@ void wireless_send(uint8_t mode, float rollAngle, float pitchAngle)
 {
   uint8_t buffer[PACKET_LENGTH];
   uint16_t timeOut = 500;
-  buffer[0] = 0;
-  buffer[1] = mode;
+  buffer[0] = 0xff;
+  buffer[1] = 0xff;
   memcpy(buffer + 2, &rollAngle, 4);
   memcpy(buffer + 6, &pitchAngle, 4);
 
-  //enable TX mode
-  CC2500_STX_CMD(0);
-  
   while ((!isTxMode()) && (timeOut))
   {
     timeOut --;
@@ -129,6 +126,8 @@ void wireless_send(uint8_t mode, float rollAngle, float pitchAngle)
   else
   {
     printf("Not in TX mode: status = %d\n", (uint16_t) CC2500_SNOP_CMD(1));
+    //enable TX mode
+    CC2500_STX_CMD(0);
   }
 }
 
